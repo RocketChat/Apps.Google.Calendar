@@ -7,6 +7,7 @@ import {
 import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
+import { GCCommand } from './Commands/GCCommands';
 
 
 export class GoogleCalendarApp extends App {
@@ -29,7 +30,7 @@ export class GoogleCalendarApp extends App {
         await configuration.settings.provideSetting({
             id: 'calendar_clientid',
             type: SettingType.STRING,
-            packageValue: 'en',
+            packageValue: '',
             required: true,
             public: false,
             i18nLabel: 'Customize_Calendar_ClientID',
