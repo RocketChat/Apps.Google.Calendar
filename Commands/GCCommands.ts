@@ -1,6 +1,8 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { GoogleCalendarApp } from '../GoogleCalendar';
+import { GCResults } from '../helpers/GCResult';
+
 
 export class GCCommand implements ISlashCommand {
 
@@ -19,18 +21,15 @@ export class GCCommand implements ISlashCommand {
         // as the max amount returned will be ten
        // throw new Error('Method not implemented.');
     
-    
-
+        
+        const cont= context.getArguments;
     
         const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
     
             try{
 
-                const parame = context.getArguments().join(' ');
-                if(parame=='auth')
-                msg.setText('This basic part is working with auth');
-                if(parame=='logout')
-                msg.setText('This basic part is working with logout')
+             const loginstatus = await this.app.getGCGetter().login(cont,this.app.getLogger(), http);
+
               await modify.getCreator().finish(msg);
             }catch (e) {
                 this.app.getLogger().error('Failed getting a gif', e);
