@@ -28,8 +28,8 @@ export class GCCommand implements ISlashCommand {
     
             try{
 
-             const loginstatus = await this.app.getGCGetter().login(cont,this.app.getLogger(), http);
-                msg.setText('Successfully executed');
+             const loginstatus = await this.app.getGCGetter().login(cont,this.app.getLogger(), http,modify,context);
+               // msg.setText('Successfully executed');
               await modify.getCreator().finish(msg);
             }catch (e) {
                 this.app.getLogger().error('Failed getting a response', e);
