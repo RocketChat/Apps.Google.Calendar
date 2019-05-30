@@ -35,7 +35,8 @@ export class GCGetter {
             const arry = newr[1];
             const cd = arry.split('&',2);
             this.res=cd[0];
-          // logger.debug('The auth code we got is: ${this.res}');
+
+            logger.debug('The auth code we got is:',this.res);
             const newresponse = await http.post(`https://www.googleapis.com/oauth2/v4/token/code=${this.res}&client_id=${this.Client_id}&client_secret=${this.secret}&redirect_uri=http://localhost:3000/general&grant_type=authorization_code`);
             
             if (newresponse.statusCode !== HttpStatusCode.OK || !newresponse.data) {
