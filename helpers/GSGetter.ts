@@ -23,23 +23,25 @@ export class GCGetter {
         if (parame == 'auth') {
             //step1,2,3
 
-            const response = await http.get(`${this.urli}client_id='${this.Client_id}'&redirect_uri=http://localhost:3000&scope=https://www.googleapis.com/auth/calendar.readonly&prompt=consent&response_type=code`);
+            const response = await http.get(`${this.urli}client_id=${this.Client_id}&redirect_uri=http://localhost:3000/home&scope=https://www.googleapis.com/auth/calendar.readonly&prompt=consent&response_type=code`);
            // this.app.('The auth code we got is: ${this.response}');
 
             //step4
-            if (response.statusCode !== HttpStatusCode.OK || !response.data) {
-                logger.debug('Did not get a valid response', response);
-                throw new Error('Unable to retrieve response with auth code.');
-            }
-
+            logger.debug('response from first request is:',response);
+            
             //response = https://oauth2.example.com/auth?code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7
             //need to create regex such that res=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7
             const newr = response.url.split('code=',2);
             const arry = newr[1];
             const cd = arry.split('&',2);
             this.res=cd[0];
-           logger.debug('The auth code we got is: ${this.res}');
-            const newresponse = await http.post(`https://www.googleapis.com/oauth2/v4/token/code='${this.res}'&client_id='${this.Client_id}'&client_secret='${this.secret}'&redirect_uri=http://localhost:3000/general&grant_type=authorization_code`);
+          // logger.debug('The auth code we got is: ${this.res}');
+            const newresponse = await http.post(`https://www.googleapis.com/oauth2/v4/token/code=${this.res}&client_id=${this.Client_id}&client_secret=${this.secret}&redirect_uri=http://localhost:3000/general&grant_type=authorization_code`);
+            
+            if (newresponse.statusCode !== HttpStatusCode.OK || !newresponse.data) {
+                logger.debug('Did not get a valid response', newresponse);
+                throw new Error('Unable to retrieve response with auth code.');
+            }
 
 
             const acesstoken = new GCResults(newresponse.data);
