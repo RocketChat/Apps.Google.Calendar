@@ -1,7 +1,7 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { GoogleCalendarApp } from '../GoogleCalendar';
-import { GCResults } from '../helpers/GCResult';
+import { GCGetter } from '../helpers/GSGetter';
 
 
 export class GCCommand implements ISlashCommand {
@@ -22,22 +22,21 @@ export class GCCommand implements ISlashCommand {
        // throw new Error('Method not implemented.');
     
         
-        const cont= context.getArguments;
+        const cont= context.getArguments().join(' ');
     
         const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
     
             try{
 
              const loginstatus = await this.app.getGCGetter().login(cont,this.app.getLogger(), http);
-
+                msg.setText('Successfully executed');
               await modify.getCreator().finish(msg);
             }catch (e) {
-                this.app.getLogger().error('Failed getting a gif', e);
-                msg.setText('An error occurred when trying to send the gif :disappointed_relieved:');
+                this.app.getLogger().error('Failed getting a response', e);
+                msg.setText('An error occurred when trying to send the request:disappointed_relieved:');
     
                 modify.getNotifier().notifyUser(context.getSender(), msg.getMessage());
             }
-
     }
 
 }

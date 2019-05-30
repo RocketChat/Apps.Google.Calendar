@@ -11,7 +11,7 @@ export class GCResults {
         }
     }
 
-    public result(): Promise<any> {
+    public result(): string {
         if (!this.atoken) {
             throw new Error('Invalid result');
         }

@@ -1,6 +1,8 @@
-import { HttpStatusCode, IHttp, ILogger, IRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { HttpStatusCode, IHttp, ILogger, IRead, IHttpResponse } from '@rocket.chat/apps-engine/definition/accessors';
 import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { GCResults } from '../helpers/GCResult';
+import { GoogleCalendarApp } from '../GoogleCalendar';
+import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 
 export class GCGetter {
     private readonly Client_id = '201256566157-552j1d7qdejuhrnovkoseieu85oomgh5.apps.googleusercontent.com';
@@ -9,34 +11,40 @@ export class GCGetter {
     private readonly SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
     private readonly urli = 'https://accounts.google.com/o/oauth2/v2/auth?';
     private readonly secret = '-lYglmNGqFNNazKoQX1m-EC9';
+    private  res; 
+    private readonly app: GoogleCalendarApp;
 
     public async login(phase: string, logger: ILogger, http: IHttp): Promise<boolean> {
 
         let signedin: boolean = false;
-
+        
         const parame = phase;
 
         if (parame == 'auth') {
             //step1,2,3
 
-            const response = await http.get(`${this.urli}client_id='${this.Client_id}'&redirect_uri=http://localhost:3000/general&scope=https://www.googleapis.com/auth/calendar.readonly&prompt=consent&response_type=code`);
+            const response = await http.get(`${this.urli}client_id='${this.Client_id}'&redirect_uri=http://localhost:3000&scope=https://www.googleapis.com/auth/calendar.readonly&prompt=consent&response_type=code`);
+           // this.app.('The auth code we got is: ${this.response}');
 
             //step4
             if (response.statusCode !== HttpStatusCode.OK || !response.data) {
                 logger.debug('Did not get a valid response', response);
-                throw new Error('Unable to retrieve gifs.');
+                throw new Error('Unable to retrieve response with auth code.');
             }
 
             //response = https://oauth2.example.com/auth?code=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7
             //need to create regex such that res=4/P7q7W91a-oMsCeLvIaQm6bTrgtp7
-            const res = new RegExp[''];
+            const newr = response.url.split('code=',2);
+            const arry = newr[1];
+            const cd = arry.split('&',2);
+            this.res=cd[0];
+           logger.debug('The auth code we got is: ${this.res}');
+            const newresponse = await http.post(`https://www.googleapis.com/oauth2/v4/token/code='${this.res}'&client_id='${this.Client_id}'&client_secret='${this.secret}'&redirect_uri=http://localhost:3000/general&grant_type=authorization_code`);
 
-            const newresponse = await http.get(`https://www.googleapis.com/oauth2/v4/token/code='${this.res}'&client_id='${this.Client_id}'&client_secret='${this.secret}'&redirect_uri=http://localhost:3000/general&grant_type=authorization_code`);
 
+            const acesstoken = new GCResults(newresponse.data);
 
-            const acesstoken = new GCResults(newresponse);
-
-            if (accesstoken) {
+            if (acesstoken) {
                 signedin = true;
             }
 
