@@ -1,30 +1,41 @@
 import {
+    IAppAccessors,
     IConfigurationExtend,
     IEnvironmentRead,
-    IAppAccessors,
     ILogger,
 } from '@rocket.chat/apps-engine/definition/accessors';
+import { ApiSecurity, ApiVisibility } from '@rocket.chat/apps-engine/definition/api';
 import { App } from '@rocket.chat/apps-engine/definition/App';
 import { IAppInfo } from '@rocket.chat/apps-engine/definition/metadata';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { GCCommand } from './Commands/GCCommands';
 import { GCGetter } from './helpers/GSGetter';
+import { WebhookEndpoint } from './helpers/Webhook';
 
 
 
 export class GoogleCalendarApp extends App {
 
     private gcGetter: GCGetter;
+    private webhook : WebhookEndpoint;
 
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
         this.gcGetter = new GCGetter();
+        this.webhook= new WebhookEndpoint(this);
 
+    }
+
+    public getwebhook(): WebhookEndpoint {
+        return this.webhook;
     }
 
     public getGCGetter(): GCGetter {
         return this.gcGetter;
     }
+
+   
+
     protected async extendConfiguration(configuration: IConfigurationExtend, environmentRead: IEnvironmentRead): Promise<void> {
         await configuration.settings.provideSetting({
             id: 'calendar_apikey',
@@ -54,6 +65,11 @@ export class GoogleCalendarApp extends App {
             public: false,
             i18nLabel: 'Customize_Calendar_SecretKey',
             i18nDescription: 'Customize_Calendar_SecretKey',
+        });
+        configuration.api.provideApi({
+            visibility: ApiVisibility.PRIVATE,
+            security: ApiSecurity.UNSECURE,
+            endpoints: [new WebhookEndpoint(this)],
         });
 
         await configuration.slashCommands.provideSlashCommand(new GCCommand(this));
