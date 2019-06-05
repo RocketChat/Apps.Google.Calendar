@@ -13,9 +13,9 @@ export class WebhookEndpoint extends ApiEndpoint {
     private readonly Client_id = '201256566157-552j1d7qdejuhrnovkoseieu85oomgh5.apps.googleusercontent.com';
     private readonly urli = 'https://accounts.google.com/o/oauth2/v2/auth?';
     private readonly secret = '-lYglmNGqFNNazKoQX1m-EC9';
+    public  tokenid;
 
-
-    public async stepone(request:IApiRequest, endpoint:IApiEndpointInfo,logger: ILogger, http: IHttp, modify:IModify, context:SlashCommandContext): Promise<IApiResponse> {
+    public async stepone(request:IApiRequest, persist:IPersistence,logger: ILogger, http: IHttp, modify:IModify, context:SlashCommandContext): Promise<IApiResponse> {
             
             logger.debug('response from first request is:',request.params);
 
@@ -30,6 +30,7 @@ export class WebhookEndpoint extends ApiEndpoint {
 
             const acesstoken = new GCResults(newresponse.data);
             logger.debug('Auth token received is: ',auth_code);
+             this.tokenid= persist.create(acesstoken);
             return this.success();
 
             //return auth_cod

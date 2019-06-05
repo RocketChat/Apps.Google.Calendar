@@ -34,7 +34,7 @@ export class GoogleCalendarApp extends App {
     protected async extendConfiguration(configuration: IConfigurationExtend, environmentRead: IEnvironmentRead): Promise<void> {
       
         await configuration.api.provideApi({
-            visibility: ApiVisibility.PRIVATE,
+            visibility: ApiVisibility.PUBLIC,
             security: ApiSecurity.UNSECURE,
             endpoints: [new WebhookEndpoint(this)],
 

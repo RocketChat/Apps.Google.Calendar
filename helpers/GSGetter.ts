@@ -40,7 +40,6 @@ export class GCGetter {
                  modify.getNotifier().notifyUser(context.getSender(), msg.getMessage());
              }
 
-
         }
 
         if (parame == 'logout') {
