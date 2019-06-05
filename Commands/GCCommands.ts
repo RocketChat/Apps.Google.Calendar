@@ -8,28 +8,28 @@ import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocke
 
 export class GCCommand implements ISlashCommand {
 
-    public command = 'calendar';
-    public i18nParamsExample = 'Calendar_login';
-    public i18nDescription = 'Calendar_Command_Description';
-    public providesPreview = false;
+  public command = 'calendar';
+  public i18nParamsExample = 'Calendar_login';
+  public i18nDescription = 'Calendar_Command_Description';
+  public providesPreview = false;
 
-    constructor(private readonly app: GoogleCalendarApp) { }
+  constructor(private readonly app: GoogleCalendarApp) { }
 
-    public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
-         
-        const cont= context.getArguments().join(' ');
-    
-        const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
-    
-            try{
+  public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
 
-             const loginstatus = await this.app.getGCGetter().login(cont,this.app.getLogger(), http,modify,context);
-              msg.setText('Slashcommand executed');   
-               await modify.getCreator().finish(msg);
-             }catch (e) {
-                 this.app.getLogger().error('Failed sending login url', e);
-                 //msg.setText('An error occurred when trying to send the login url:disappointed_relieved:');
-              }
+    const cont = context.getArguments().join(' ');
 
+    const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
+
+    try {
+
+      const loginstatus = await this.app.getGCGetter().login(cont, this.app.getLogger(), http, modify, context);
+      msg.setText('Slashcommand executed');
+      await modify.getCreator().finish(msg);
+    } catch (e) {
+      this.app.getLogger().error('Failed sending login url', e);
+      //msg.setText('An error occurred when trying to send the login url:disappointed_relieved:');
     }
+
+  }
 }
