@@ -14,7 +14,7 @@ export class WebhookEndpoint extends ApiEndpoint {
     private readonly secret = '-lYglmNGqFNNazKoQX1m-EC9';
     public tokenid;
 
-    public async stepone(request: IApiRequest, persist: IPersistence, logger: ILogger, http: IHttp, modify: IModify, context: SlashCommandContext): Promise<IApiResponse> {
+    public async post(request: IApiRequest, persist: IPersistence, logger: ILogger, http: IHttp, modify: IModify, context: SlashCommandContext): Promise<IApiResponse> {
 
         logger.debug('response from first request is:', request.params);
 
