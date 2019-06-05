@@ -21,12 +21,15 @@ export class GCCommand implements ISlashCommand {
     
         const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
     
-          //  try{
+            try{
 
              const loginstatus = await this.app.getGCGetter().login(cont,this.app.getLogger(), http,modify,context);
-               // msg.setText('Successfully executed')
-    
-    //}
+              msg.setText('Slashcommand executed');   
+               await modify.getCreator().finish(msg);
+             }catch (e) {
+                 this.app.getLogger().error('Failed sending login url', e);
+                 //msg.setText('An error occurred when trying to send the login url:disappointed_relieved:');
+              }
 
     }
 }

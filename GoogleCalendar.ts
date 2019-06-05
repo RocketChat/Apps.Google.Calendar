@@ -17,19 +17,14 @@ import { WebhookEndpoint } from './helpers/Webhook';
 export class GoogleCalendarApp extends App {
 
     private gcGetter: GCGetter;
-    private webhook : WebhookEndpoint;
+   // private webhook : WebhookEndpoint;
 
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
         this.gcGetter = new GCGetter();
-        this.webhook= new WebhookEndpoint(this);
+        //this.webhook= new WebhookEndpoint(this);
 
     }
-
-    public getwebhook(): WebhookEndpoint {
-        return this.webhook;
-    }
-
     public getGCGetter(): GCGetter {
         return this.gcGetter;
     }
@@ -37,6 +32,15 @@ export class GoogleCalendarApp extends App {
    
 
     protected async extendConfiguration(configuration: IConfigurationExtend, environmentRead: IEnvironmentRead): Promise<void> {
+      
+        await configuration.api.provideApi({
+            visibility: ApiVisibility.PRIVATE,
+            security: ApiSecurity.UNSECURE,
+            endpoints: [new WebhookEndpoint(this)],
+
+        });
+
+       
         await configuration.settings.provideSetting({
             id: 'calendar_apikey',
             type: SettingType.STRING,
@@ -66,12 +70,7 @@ export class GoogleCalendarApp extends App {
             i18nLabel: 'Customize_Calendar_SecretKey',
             i18nDescription: 'Customize_Calendar_SecretKey',
         });
-        configuration.api.provideApi({
-            visibility: ApiVisibility.PRIVATE,
-            security: ApiSecurity.UNSECURE,
-            endpoints: [new WebhookEndpoint(this)],
-        });
-
+       
         await configuration.slashCommands.provideSlashCommand(new GCCommand(this));
 
     }
