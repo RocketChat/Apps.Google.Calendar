@@ -28,7 +28,7 @@ export class GCGetter {
             //step1,2,3
             //  const auth_code = await this.app.getwebhook().stepone(req,end,this.app.getLogger(), http,modify,context);
             const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
-            const response = (`${this.urli}client_id=${this.Client_id}&redirect_uri=http://localhost:3000/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar.readonly&prompt=consent&response_type=code`);
+            const response = (`${this.urli}client_id=${this.Client_id}&redirect_uri=http://localhost:3000/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar.readonly&prompt=consent&access_type=offline&response_type=code`);
 
             try {
                 msg.setText(response);
