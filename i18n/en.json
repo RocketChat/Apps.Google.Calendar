@@ -1,0 +1,10 @@
+{
+    "calendar_apikey": "Your Google Calendar API key",
+    "Customize_GoogleCalendar_APIKey_Description": "Insert your Calendar API key from API Console",
+    "calendar_clientid": "Your Client ID",
+    "Customize_Calendar_ClientID": "Insert your Client ID from API Console",
+    "calendar_secret_key": "Your Secret Key",
+    "Customize_Calendar_SecretKey": "Insert your Secret Key from API Console",
+    "Calendar_Command_Description": "/calendar [subcommand]",
+    "Calendar_login": "/calendar {action}"
+}
