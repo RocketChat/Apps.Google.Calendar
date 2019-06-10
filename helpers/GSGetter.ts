@@ -25,7 +25,8 @@ export class GCGetter {
         const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid') || this.dClient_id;
         const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey') || this.dapi_key;
         const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key') || this.dsecret;
-
+        const persistence = new AppPersistence(persis, read.getPersistenceReader());
+        const id = await persistence.connectUserToClient(Client_id, context.getSender());
 
 
         let signedin: boolean = false;
@@ -48,8 +49,7 @@ export class GCGetter {
                 modify.getNotifier().notifyUser(context.getSender(), msg.getMessage());
             }
 
-            const persistence = new AppPersistence(persis, read.getPersistenceReader());
-            const id = await persistence.connectUserToClient(Client_id, context.getSender());
+           
             const atoken = await persistence.getAT(context.getSender());
 
             console.log('This is the access token inside GCGetter:', atoken);

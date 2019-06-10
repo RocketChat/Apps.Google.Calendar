@@ -14,7 +14,7 @@ export class AppPersistence {
 
     public async getuid(Clientid: string): Promise<string> {
 
-        const clientAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, `${Clientid}`);
+        const clientAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, Clientid);
         const [result] = await this.persistenceRead.readByAssociations([clientAssociation]);
         return result ? (result as any).uid : undefined;
     }

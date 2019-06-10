@@ -17,7 +17,7 @@ export class WebhookEndpoint extends ApiEndpoint {
     private readonly dsecret = '-lYglmNGqFNNazKoQX1m-EC9';
     public tokenid;
 
-    public async get(request: IApiRequest, endpoint: IApiEndpointInfo, read: IRead, modify: IModify, http: IHttp, persist: IPersistence, user: IUser): Promise<IApiResponse> {
+    public async get(request: IApiRequest, endpoint: IApiEndpointInfo, read: IRead, modify: IModify, http: IHttp, persist: IPersistence): Promise<IApiResponse> {
 
         const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid') || this.dClient_id;
         const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key') || this.dsecret;
@@ -40,12 +40,9 @@ export class WebhookEndpoint extends ApiEndpoint {
         const atoken = acesstoken;
         const persistence = new AppPersistence(persist, read.getPersistenceReader());
         const uid = await persistence.getuid(Client_id);
-        const id = await persistence.connectUserToAT(acesstoken, uid)
-        //const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, uid);
-        //await persist.updateByAssociations([userAssociation], { acesstoken }, true);
+        const id = await persistence.connectUserToAT(acesstoken, uid);
+        
 
-
-        // this.tokenid = persist.create(acesstoken);
         if (acesstoken) {
             //location.assign('http://localhost:3000/home');
             return this.success('<html><body><script type="text/javascript"></script><div>Sign-in successful! Please close this window/tab and continue using!</div></body></html>');
