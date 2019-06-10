@@ -27,8 +27,7 @@ export class GCGetter {
         const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key') || this.dsecret;
         const persistence = new AppPersistence(persis, read.getPersistenceReader());
         const id = await persistence.connectUserToClient(Client_id, context.getSender());
-
-
+        
         let signedin: boolean = false;
 
         const parame = phase;
@@ -50,14 +49,17 @@ export class GCGetter {
             }
 
            
-            const atoken = await persistence.getAT(context.getSender());
-
-            console.log('This is the access token inside GCGetter:', atoken);
+            
             return signedin = true;
         }
 
         if (parame == 'logout') {
             const resnew = await http.get(`https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=http://localhost:3000`);
+       
+            const atoken = await persistence.getAT(context.getSender());
+
+            console.log('This is the access token inside GCGetter:', atoken);
+    
         }
 
         return signedin;
