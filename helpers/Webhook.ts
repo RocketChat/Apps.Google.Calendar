@@ -1,10 +1,12 @@
 
 import { HttpStatusCode, IHttp, ILogger, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
-//import { AppPersistence } from '../lib/persistence';
+import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 import { GCGetter } from './GSGetter';
 import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { GCResults } from '../helpers/GCResult';
+import { IUser } from '@rocket.chat/apps-engine/definition/users';
+import { AppPersistence } from '../helpers/persistence';
 
 
 export class WebhookEndpoint extends ApiEndpoint {
@@ -15,7 +17,7 @@ export class WebhookEndpoint extends ApiEndpoint {
     private readonly dsecret = '-lYglmNGqFNNazKoQX1m-EC9';
     public tokenid;
 
-    public async get(request: IApiRequest, endpoint: IApiEndpointInfo, read: IRead, modify: IModify, http: IHttp, persist: IPersistence, resp: IApiResponse): Promise<IApiResponse> {
+    public async get(request: IApiRequest, endpoint: IApiEndpointInfo, read: IRead, modify: IModify, http: IHttp, persist: IPersistence, user: IUser): Promise<IApiResponse> {
 
         const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid') || this.dClient_id;
         const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key') || this.dsecret;
@@ -35,14 +37,23 @@ export class WebhookEndpoint extends ApiEndpoint {
         console.log('This is the response from post api', newresponse);
         const acesstoken = new GCResults(newresponse.data);
         // logger.debug('Auth token received is: ', auth_code);
+        const atoken = acesstoken;
+        const persistence = new AppPersistence(persist, read.getPersistenceReader());
+        const uid = await persistence.getuid(Client_id);
+        const id = await persistence.connectUserToAT(acesstoken, uid)
+        //const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, uid);
+        //await persist.updateByAssociations([userAssociation], { acesstoken }, true);
 
-        this.tokenid = persist.create(acesstoken);
+
+        // this.tokenid = persist.create(acesstoken);
         if (acesstoken) {
-            return this.success('Sign-in successful! Please close this window/tab and continue using!');
+            //location.assign('http://localhost:3000/home');
+            return this.success('<html><body><script type="text/javascript"></script><div>Sign-in successful! Please close this window/tab and continue using!</div></body></html>');
         }
         else
             throw new Error('Sign-in not successful');
-        //return auth_cod
+        // return auth_cod
+        //return this.success();
     }
 
 }

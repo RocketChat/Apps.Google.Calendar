@@ -1,10 +1,12 @@
-import { HttpStatusCode, IHttp, ILogger, IRead, IHttpResponse, IModify } from '@rocket.chat/apps-engine/definition/accessors';
+import { HttpStatusCode, IHttp, ILogger, IRead, IHttpResponse, IModify, IPersistence } from '@rocket.chat/apps-engine/definition/accessors';
 import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { GCResults } from '../helpers/GCResult';
 import { GoogleCalendarApp } from '../GoogleCalendar';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { WebhookEndpoint } from '../helpers/Webhook';
+import { AppPersistence } from '../helpers/persistence';
+
 
 
 export class GCGetter {
@@ -18,11 +20,13 @@ export class GCGetter {
 
 
 
-    public async login(phase: string, logger: ILogger, read: IRead, http: IHttp, modify: IModify, context: SlashCommandContext): Promise<boolean> {
+    public async login(phase: string, logger: ILogger, read: IRead, http: IHttp, modify: IModify, context: SlashCommandContext, persis: IPersistence): Promise<boolean> {
 
         const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid') || this.dClient_id;
         const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey') || this.dapi_key;
         const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key') || this.dsecret;
+
+
 
         let signedin: boolean = false;
 
@@ -43,6 +47,12 @@ export class GCGetter {
 
                 modify.getNotifier().notifyUser(context.getSender(), msg.getMessage());
             }
+
+            const persistence = new AppPersistence(persis, read.getPersistenceReader());
+            const id = await persistence.connectUserToClient(Client_id, context.getSender());
+            const atoken = await persistence.getAT(context.getSender());
+
+            console.log('This is the access token inside GCGetter:', atoken);
             return signedin = true;
         }
 

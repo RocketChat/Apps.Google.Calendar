@@ -3,6 +3,8 @@ import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCom
 import { GoogleCalendarApp } from '../GoogleCalendar';
 import { GCGetter } from '../helpers/GSGetter';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
+import { AppPersistence } from '../helpers/persistence';
+import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
 
 
@@ -17,13 +19,14 @@ export class GCCommand implements ISlashCommand {
 
   public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
 
+
     const cont = context.getArguments().join(' ');
 
     const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
 
     try {
 
-      const loginstatus = await this.app.getGCGetter().login(cont, this.app.getLogger(), read, http, modify, context);
+      const loginstatus = await this.app.getGCGetter().login(cont, this.app.getLogger(), read, http, modify, context, persis);
       msg.setText('Slashcommand executed');
       await modify.getCreator().finish(msg);
     } catch (e) {
