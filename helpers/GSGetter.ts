@@ -7,6 +7,8 @@ import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { WebhookEndpoint } from '../helpers/Webhook';
 import { AppPersistence } from '../helpers/persistence';
 import { stringify } from 'querystring';
+import { displayevents } from '../helpers/result';
+
 
 enum Command {
     connect = 'auth',
@@ -85,8 +87,12 @@ export class GCGetter {
                 const newdate = dat.toISOString();
                 const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&showDeleted=false&timeMin=${newdate}`;
                 const newresponse = await http.get(url, { headers: { 'Authorization': `Bearer ${newatoken}`, } });
-                console.log('This is the AT for list events', newatoken);
-                console.log('This is view event response', newresponse);
+
+                for (var i = 0; i < newresponse.data.items.length; i++) {
+                    //  console.log( newresponse.data.items[i].summary);
+                    await displayevents(newresponse.data.items[i], modify, context);
+
+                }
 
             }
 
