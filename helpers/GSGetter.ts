@@ -12,7 +12,7 @@ import { displayevents } from '../helpers/result';
 
 enum Command {
     connect = 'auth',
-    logout = 'logout',
+    lgout = 'logout',
     show = 'view',
 }
 
@@ -58,7 +58,7 @@ export class GCGetter {
                 }
             }
 
-            case (Command.logout): {
+            case (Command.lgout): {
 
                 const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
                 const response = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=http://localhost:3000`;

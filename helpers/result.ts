@@ -6,31 +6,38 @@ export async function displayevents(result: any, modify: IModify, context: Slash
 
     console.log('This is inside result function');
     const summ = result.summary as string;
-    let starttime = result.start.dateTime as string;
+    const starttime = result.start.dateTime as string;
     let endtime = result.end.dateTime as string;
-    //const array = starttime.split('T',2);
 
+    const startdate = new Date(starttime);
+    const startyear = startdate.getFullYear();
+    const startmonth = (startdate.getMonth() + 1);
+    const datestart = startdate.getDate();//prints expected format.
+    const starthours = startdate.getHours();
+    const startminutes = startdate.getMinutes();
+
+    const shortcutdate = new Date(endtime);
+    const yearnew = shortcutdate.getFullYear();
+    const monthnew = (shortcutdate.getMonth() + 1);
+    const datenew = shortcutdate.getDate();//prints expected format.
+    const hoursend = shortcutdate.getHours();
+    const minutesend = shortcutdate.getMinutes();
+    let timezone = starttime.split('+', 2);
+    let sign;
+    if (timezone) {
+        sign = '+';
+    }
+    else {
+        timezone = starttime.split('-', 2);
+        sign = '-'
+    }
     const builder = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
     try {
         builder.addAttachment({
             title: {
                 value: summ,
             },
-            text: 'is a due event starting from',
-            fields: [{
-                short: false,
-                title: "Start day",
-                value: starttime,
-
-            },
-
-            {
-                short: false,
-                title: "End Time",
-                value: endtime,
-            }
-
-            ]
+            text: `is a due event on your calendar starting from date ${datestart}/${startmonth}/${startyear} at ${starthours}:${startminutes} (UTC ${sign}${timezone[1]}) to ${datenew}/${monthnew}/${[yearnew]} at ${hoursend}:${minutesend} (UTC ${sign}${timezone[1]}) `,
 
 
         });
