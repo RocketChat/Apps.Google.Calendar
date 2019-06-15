@@ -121,8 +121,7 @@ export class GCGetter {
 
                 const createresponse = await http.post(createurl, { headers: { 'Authorization': `Bearer ${createatoken}`, }, data: { 'summary': `${array[1]}`, 'end': { 'dateTime': `${enddatetime}`, }, 'start': { 'dateTime': `${startdatetime}` } } });
                 console.log('This is the create event request response: ', createresponse);
-                if (createresponse.statusCode == HttpStatusCode.OK && createresponse.data.status == "confirmed")
-                    //console.log('Event created wohoooooo!!!');
+                if (createresponse.statusCode == HttpStatusCode.OK && createresponse.data.status == "confirmed") { //console.log('Event created wohoooooo!!!');
                     try {
                         msg.addAttachment({
 
@@ -135,6 +134,23 @@ export class GCGetter {
                         this.app.getLogger().error('Failed creating events', e);
                         msg.setText('An error occurred when sending the event creation as message :disappointed_relieved:');
                     }
+                }
+                else {
+                    console.log('This is the error message:', createresponse.data.error.message);
+
+                    try {
+                        msg.addAttachment({
+
+                            text: `Event could not be created. It encountered the error: ${createresponse.data.error.message}. Please try again. `,
+
+
+                        });
+                        await modify.getCreator().finish(msg);
+                    } catch (e) {
+                        this.app.getLogger().error('Failed creating events', e);
+                        msg.setText('An error occurred when sending the event creation as message :disappointed_relieved:');
+                    }
+                }
                 break;
         }
 
