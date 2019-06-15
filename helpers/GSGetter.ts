@@ -14,13 +14,14 @@ enum Command {
     connect = 'auth',
     lgout = 'logout',
     show = 'view',
+    make = 'create',
 }
 
 
 export class GCGetter {
     private readonly dClient_id = '201256566157-552j1d7qdejuhrnovkoseieu85oomgh5.apps.googleusercontent.com';
     private readonly dapi_key = 'AIzaSyAY1YAPK1lIcx1bgsLOgsRfNfAluVQhuq4';
-    private readonly SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+    private readonly SCOPES = "https://www.googleapis.com/auth/calendar";
     private readonly urli = 'https://accounts.google.com/o/oauth2/v2/auth?';
     private readonly dsecret = '-lYglmNGqFNNazKoQX1m-EC9';
     private res;
@@ -39,13 +40,14 @@ export class GCGetter {
         const id = await persistence.connectUserToClient(Client_id, context.getSender());
 
         let signedin: boolean = false;
+        const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
 
 
         const [parame] = context.getArguments();
         switch (parame) {
-            case (Command.connect): {
-                const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
-                const response = (`${this.urli}client_id=${Client_id}&redirect_uri=http://localhost:3000/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar.readonly&prompt=consent&access_type=offline&response_type=code`);
+
+            case (Command.connect):
+                const response = (`${this.urli}client_id=${Client_id}&redirect_uri=http://localhost:3000/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar&prompt=consent&access_type=offline&response_type=code`);
 
                 try {
                     msg.setText(response);
@@ -55,21 +57,22 @@ export class GCGetter {
                     msg.setText('An error occurred when trying to send the login url:disappointed_relieved:');
 
                     modify.getNotifier().notifyUser(context.getSender(), msg.getMessage());
+
                 }
-            }
+                break;
 
-            case (Command.lgout): {
+            case (Command.lgout):
 
-                const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
-                const response = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=http://localhost:3000`;
+                const mesg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
+                const logresponse = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=http://localhost:3000`;
                 try {
-                    msg.setText(response);
-                    await modify.getCreator().finish(msg);
+                    mesg.setText(logresponse);
+                    await modify.getCreator().finish(mesg);
                 } catch (e) {
                     this.app.getLogger().error('Failed sending login url', e);
-                    msg.setText('An error occurred when trying to send the login url:disappointed_relieved:');
+                    mesg.setText('An error occurred when trying to send the login url:disappointed_relieved:');
 
-                    modify.getNotifier().notifyUser(context.getSender(), msg.getMessage());
+                    modify.getNotifier().notifyUser(context.getSender(), mesg.getMessage());
                 }
 
 
@@ -77,9 +80,9 @@ export class GCGetter {
 
                 console.log('This is the access token inside GCGetter:', atoken);
 
-            }
+                break;
 
-            case (Command.show): {
+            case (Command.show):
 
                 const newatoken = await persistence.getAT(context.getSender());
 
@@ -94,8 +97,45 @@ export class GCGetter {
 
                 }
 
-            }
+                break;
 
+            case (Command.make):
+
+                const createatoken = await persistence.getAT(context.getSender());
+                const params = context.getArguments().join(' ');
+                const array = params.split("\"");
+                const createurl = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}`;
+                console.log('Create event array elements are these:', array[1], array[3]);
+
+                const datetime = array[3] + 'T' + array[5];
+                const date = new Date(datetime);
+                //const starttime = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+                const startdatetime = date.toISOString();
+
+                const edate = array[3] + 'T' + array[7];
+                const enddate = new Date(edate);
+                const enddatetime = enddate.toISOString();
+
+
+                // console.log('Start date and time in ISO format is: ',startdatetime,'end date time:',enddatetime);
+
+                const createresponse = await http.post(createurl, { headers: { 'Authorization': `Bearer ${createatoken}`, }, data: { 'summary': `${array[1]}`, 'end': { 'dateTime': `${enddatetime}`, }, 'start': { 'dateTime': `${startdatetime}` } } });
+                console.log('This is the create event request response: ', createresponse);
+                if (createresponse.statusCode == HttpStatusCode.OK && createresponse.data.status == "confirmed")
+                    //console.log('Event created wohoooooo!!!');
+                    try {
+                        msg.addAttachment({
+
+                            text: `Event has been created. Find the event at [${createresponse.data.summary}](${createresponse.data.htmlLink}) `,
+
+
+                        });
+                        await modify.getCreator().finish(msg);
+                    } catch (e) {
+                        this.app.getLogger().error('Failed creating events', e);
+                        msg.setText('An error occurred when sending the event creation as message :disappointed_relieved:');
+                    }
+                break;
         }
 
     }
