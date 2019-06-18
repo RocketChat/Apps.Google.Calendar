@@ -11,17 +11,14 @@ import { AppPersistence } from '../helpers/persistence';
 
 export class WebhookEndpoint extends ApiEndpoint {
     public path = 'webhook';
-    private readonly dClient_id = '201256566157-552j1d7qdejuhrnovkoseieu85oomgh5.apps.googleusercontent.com';
-    private readonly dapi_key = 'AIzaSyAY1YAPK1lIcx1bgsLOgsRfNfAluVQhuq4';
     private readonly urli = 'http://localhost:3000/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook';
-    private readonly dsecret = '-lYglmNGqFNNazKoQX1m-EC9';
     public tokenid;
 
     public async get(request: IApiRequest, endpoint: IApiEndpointInfo, read: IRead, modify: IModify, http: IHttp, persist: IPersistence): Promise<IApiResponse> {
 
-        const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid') || this.dClient_id;
-        const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key') || this.dsecret;
-        const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey') || this.dapi_key;
+        const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid');
+        const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key');
+        const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey');
 
         //logger.debug('response from first request is:', request.params);`
 
