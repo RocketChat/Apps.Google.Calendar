@@ -71,6 +71,16 @@ export class GoogleCalendarApp extends App {
             i18nDescription: 'Customize_Calendar_SecretKey',
         });
 
+        await configuration.settings.provideSetting({
+            id: 'redirect_uri',
+            type: SettingType.STRING,
+            packageValue: '',
+            required: true,
+            public: false,
+            i18nLabel: 'Customize_Redirect_uri',
+            i18nDescription: 'Customize_Redirect_URI',
+        });
+
         await configuration.slashCommands.provideSlashCommand(new GCCommand(this));
 
     }

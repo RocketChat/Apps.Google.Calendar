@@ -19,11 +19,8 @@ enum Command {
 
 
 export class GCGetter {
-    private readonly dClient_id = '201256566157-552j1d7qdejuhrnovkoseieu85oomgh5.apps.googleusercontent.com';
-    private readonly dapi_key = 'AIzaSyAY1YAPK1lIcx1bgsLOgsRfNfAluVQhuq4';
     private readonly SCOPES = "https://www.googleapis.com/auth/calendar";
     private readonly urli = 'https://accounts.google.com/o/oauth2/v2/auth?';
-    private readonly dsecret = '-lYglmNGqFNNazKoQX1m-EC9';
     private res;
     private readonly app: GoogleCalendarApp;
 
@@ -33,9 +30,10 @@ export class GCGetter {
 
     public async login(logger: ILogger, read: IRead, http: IHttp, modify: IModify, context: SlashCommandContext, persis: IPersistence): Promise<void> {
 
-        const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid') || this.dClient_id;
-        const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey') || this.dapi_key;
-        const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key') || this.dsecret;
+        const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid');
+        const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey');
+        const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key');
+        const redirect = await read.getEnvironmentReader().getSettings().getValueById('redirect_uri');
         const persistence = new AppPersistence(persis, read.getPersistenceReader());
         const id = await persistence.connectUserToClient(Client_id, context.getSender());
 
@@ -47,7 +45,7 @@ export class GCGetter {
         switch (parame) {
 
             case (Command.connect):
-                const response = (`${this.urli}client_id=${Client_id}&redirect_uri=http://localhost:3000/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar&prompt=consent&access_type=offline&response_type=code`);
+                const response = (`${this.urli}client_id=${Client_id}&redirect_uri=http://${redirect}/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar&prompt=consent&access_type=offline&response_type=code`);
 
                 try {
                     msg.setText(response);
@@ -64,13 +62,13 @@ export class GCGetter {
             case (Command.lgout):
 
                 const mesg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
-                const logresponse = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=http://localhost:3000`;
+                const logresponse = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=${redirect}`;
                 try {
                     mesg.setText(logresponse);
                     await modify.getCreator().finish(mesg);
                 } catch (e) {
-                    this.app.getLogger().error('Failed sending login url', e);
-                    mesg.setText('An error occurred when trying to send the login url:disappointed_relieved:');
+                    this.app.getLogger().error('Failed sending logout url', e);
+                    mesg.setText('An error occurred when trying to send the logout url:disappointed_relieved:');
 
                     modify.getNotifier().notifyUser(context.getSender(), mesg.getMessage());
                 }
@@ -78,7 +76,7 @@ export class GCGetter {
 
                 const atoken = await persistence.getAT(context.getSender());
 
-                console.log('This is the access token inside GCGetter:', atoken);
+               // console.log('This is the access token inside GCGetter:', atoken);
 
                 break;
 

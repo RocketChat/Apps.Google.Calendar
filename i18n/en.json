@@ -6,5 +6,6 @@
     "calendar_secret_key": "Your Secret Key",
     "Customize_Calendar_SecretKey": "Insert your Secret Key from API Console",
     "Calendar_Command_Description": "/calendar [subcommand]",
-    "Calendar_login": "/calendar {action}"
+    "Calendar_login": "/calendar {action}",
+    "redirect_uri": "Enter your server address"
 }
