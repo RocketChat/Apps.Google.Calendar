@@ -45,7 +45,7 @@ export class GCGetter {
         switch (parame) {
 
             case (Command.connect):
-                const response = (`${this.urli}client_id=${Client_id}&redirect_uri=http://${redirect}/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar&prompt=consent&access_type=offline&response_type=code`);
+                const response = (`${this.urli}client_id=${Client_id}&redirect_uri=${redirect}/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar&prompt=consent&access_type=offline&response_type=code`);
 
                 try {
                     msg.setText(response);
