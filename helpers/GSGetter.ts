@@ -18,11 +18,8 @@ enum Command {
 
 
 export class GCGetter {
-    private readonly dClient_id = '201256566157-552j1d7qdejuhrnovkoseieu85oomgh5.apps.googleusercontent.com';
-    private readonly dapi_key = 'AIzaSyAY1YAPK1lIcx1bgsLOgsRfNfAluVQhuq4';
     private readonly SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
     private readonly urli = 'https://accounts.google.com/o/oauth2/v2/auth?';
-    private readonly dsecret = '-lYglmNGqFNNazKoQX1m-EC9';
     private res;
     private readonly app: GoogleCalendarApp;
 
@@ -32,9 +29,9 @@ export class GCGetter {
 
     public async login(logger: ILogger, read: IRead, http: IHttp, modify: IModify, context: SlashCommandContext, persis: IPersistence): Promise<void> {
 
-        const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid') || this.dClient_id;
-        const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey') || this.dapi_key;
-        const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key') || this.dsecret;
+        const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid');
+        const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey');
+        const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key');
         const persistence = new AppPersistence(persis, read.getPersistenceReader());
         const id = await persistence.connectUserToClient(Client_id, context.getSender());
 
