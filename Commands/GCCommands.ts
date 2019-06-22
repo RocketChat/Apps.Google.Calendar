@@ -25,7 +25,9 @@ export class GCCommand implements ISlashCommand {
 
     try {
 
+
       const loginstatus = await this.app.getGCGetter().login(this.app.getLogger(), read, http, modify, context, persis);
+
       msg.setText('Slashcommand executed');
       modify.getNotifier().notifyUser(context.getSender(), msg.getMessage());
     } catch (e) {

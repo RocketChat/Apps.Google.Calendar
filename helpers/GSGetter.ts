@@ -27,13 +27,16 @@ export class GCGetter {
 
 
 
+
     public async login(logger: ILogger, read: IRead, http: IHttp, modify: IModify, context: SlashCommandContext, persis: IPersistence): Promise<void> {
+
 
         const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid');
         const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey');
         const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key');
         const persistence = new AppPersistence(persis, read.getPersistenceReader());
         const id = await persistence.connectUserToClient(Client_id, context.getSender());
+
 
         let signedin: boolean = false;
 
@@ -95,6 +98,6 @@ export class GCGetter {
 
         }
 
-    }
+
 
 }
