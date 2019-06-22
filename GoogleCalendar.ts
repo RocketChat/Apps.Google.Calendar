@@ -81,6 +81,7 @@ export class GoogleCalendarApp extends App {
             i18nDescription: 'Customize_Redirect_URI',
         });
 
+
         await configuration.slashCommands.provideSlashCommand(new GCCommand(this));
 
     }

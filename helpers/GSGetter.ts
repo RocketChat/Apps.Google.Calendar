@@ -6,6 +6,7 @@ import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocke
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { WebhookEndpoint } from '../helpers/Webhook';
 import { AppPersistence } from '../helpers/persistence';
+
 import { stringify } from 'querystring';
 import { displayevents } from '../helpers/result';
 
@@ -20,6 +21,7 @@ enum Command {
 
 export class GCGetter {
     private readonly SCOPES = "https://www.googleapis.com/auth/calendar";
+
     private readonly urli = 'https://accounts.google.com/o/oauth2/v2/auth?';
     private res;
     private readonly app: GoogleCalendarApp;
@@ -28,11 +30,14 @@ export class GCGetter {
 
 
 
+
     public async login(logger: ILogger, read: IRead, http: IHttp, modify: IModify, context: SlashCommandContext, persis: IPersistence): Promise<void> {
+
 
         const Client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid');
         const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey');
         const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key');
+
         const redirect = await read.getEnvironmentReader().getSettings().getValueById('redirect_uri');
         const persistence = new AppPersistence(persis, read.getPersistenceReader());
         const id = await persistence.connectUserToClient(Client_id, context.getSender());
