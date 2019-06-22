@@ -20,7 +20,6 @@ export class GCCommand implements ISlashCommand {
   public async executor(context: SlashCommandContext, read: IRead, modify: IModify, http: IHttp, persis: IPersistence): Promise<void> {
 
 
-    //const cont = context.getArguments().join(' ');
 
     const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
 
