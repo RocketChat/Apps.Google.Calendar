@@ -12,4 +12,5 @@
     "nameSlug": "google-calendar",
     "classFile": "GoogleCalendar.ts",
     "description": "Use app to manage your calendar events"
+     
 }
