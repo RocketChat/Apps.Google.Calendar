@@ -21,15 +21,9 @@ enum Command {
 
 export class GCGetter {
     private readonly SCOPES = "https://www.googleapis.com/auth/calendar";
-
     private readonly urli = 'https://accounts.google.com/o/oauth2/v2/auth?';
     private res;
     private readonly app: GoogleCalendarApp;
-
-
-
-
-
 
     public async login(logger: ILogger, read: IRead, http: IHttp, modify: IModify, context: SlashCommandContext, persis: IPersistence): Promise<void> {
 
@@ -81,7 +75,7 @@ export class GCGetter {
 
                 const atoken = await persistence.getAT(context.getSender());
 
-               // console.log('This is the access token inside GCGetter:', atoken);
+                // console.log('This is the access token inside GCGetter:', atoken);
 
                 break;
 
