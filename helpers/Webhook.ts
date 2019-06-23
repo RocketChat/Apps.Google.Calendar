@@ -38,7 +38,7 @@ export class WebhookEndpoint extends ApiEndpoint {
         const persistence = new AppPersistence(persist, read.getPersistenceReader());
         const uid = await persistence.getuid(Client_id);
         const id = await persistence.connectUserToAT(acesstoken, uid);
-        
+
 
         if (acesstoken) {
             //location.assign('http://localhost:3000/home');

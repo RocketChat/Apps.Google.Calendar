@@ -2,6 +2,7 @@ import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket
 import { IPersistence, IPersistenceRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
+
 export class AppPersistence {
     constructor(private readonly persistence: IPersistence, private readonly persistenceRead: IPersistenceRead) { }
 
@@ -26,8 +27,10 @@ export class AppPersistence {
     }
     public async getAT(user: IUser): Promise<void> {
         const userAssociation = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
-        const [result] = await this.persistenceRead.readByAssociations([userAssociation]);
-        return result ? (result as any).atoken : undefined;
+
+        const [result] = await this.persistenceRead.readByAssociation(userAssociation);
+        return result ? (result as any).atoken.atoken : undefined;
+
     }
 
 
