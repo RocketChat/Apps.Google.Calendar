@@ -40,6 +40,7 @@ export async function displayevents(result: any, modify: IModify, context: Slash
             text: `is a due event on your calendar starting from date ${datestart}/${startmonth}/${startyear} at ${starthours}:${startminutes} (UTC ${sign}${timezone[1]}) to ${datenew}/${monthnew}/${[yearnew]} at ${hoursend}:${minutesend} (UTC ${sign}${timezone[1]}). [Find and manage the event here](${result.htmlLink}) `,
 
 
+
         });
         await modify.getCreator().finish(builder);
     } catch (e) {

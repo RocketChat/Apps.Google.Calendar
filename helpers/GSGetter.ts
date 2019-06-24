@@ -6,6 +6,8 @@ import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocke
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { WebhookEndpoint } from '../helpers/Webhook';
 import { AppPersistence } from '../helpers/persistence';
+import { stringify } from 'querystring';
+import { displayevents } from '../helpers/result';
 
 import { stringify } from 'querystring';
 import { displayevents } from '../helpers/result';
@@ -16,6 +18,12 @@ enum Command {
     lgout = 'logout',
     show = 'view',
     make = 'create',
+}
+
+enum Command {
+    connect = 'auth',
+    lgout = 'logout',
+    show = 'view',
 }
 
 
@@ -36,12 +44,12 @@ export class GCGetter {
         const persistence = new AppPersistence(persis, read.getPersistenceReader());
         const id = await persistence.connectUserToClient(Client_id, context.getSender());
 
+
         let signedin: boolean = false;
         const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
 
 
         const [parame] = context.getArguments();
-        switch (parame) {
 
             case (Command.connect):
                 const response = (`${this.urli}client_id=${Client_id}&redirect_uri=${redirect}/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar&prompt=consent&access_type=offline&response_type=code`);
@@ -151,6 +159,6 @@ export class GCGetter {
                 break;
         }
 
-    }
+
 
 }
