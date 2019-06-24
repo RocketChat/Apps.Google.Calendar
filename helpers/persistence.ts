@@ -32,7 +32,4 @@ export class AppPersistence {
         return result ? (result as any).atoken.atoken : undefined;
 
     }
-
-
-
 }
