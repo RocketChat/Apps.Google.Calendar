@@ -3,20 +3,20 @@ import { HttpStatusCode, IHttp, ILogger, IRead } from '@rocket.chat/apps-engine/
 import { IApiRequest } from '@rocket.chat/apps-engine/definition/api';
 
 export class GCResults {
-    public atoken: string;
+    public acess_token: string;
 
     constructor(data?: any) {
 
         if (data) {
-            this.atoken = data.access_token as string;
+            this.acess_token = data.access_token as string;
         }
     }
 
     public result(): string {
-        if (!this.atoken) {
+        if (!this.acess_token) {
             throw new Error('Invalid result');
         }
-        return this.atoken;
+        return this.acess_token;
     }
 
 }
