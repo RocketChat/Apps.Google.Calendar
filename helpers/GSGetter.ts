@@ -8,9 +8,7 @@ import { WebhookEndpoint } from '../helpers/Webhook';
 import { AppPersistence } from '../helpers/persistence';
 import { stringify } from 'querystring';
 import { displayevents } from '../helpers/result';
-
-import { stringify } from 'querystring';
-import { displayevents } from '../helpers/result';
+import { ok } from 'assert';
 
 
 enum Command {
@@ -18,12 +16,7 @@ enum Command {
     lgout = 'logout',
     show = 'view',
     make = 'create',
-}
-
-enum Command {
-    connect = 'auth',
-    lgout = 'logout',
-    show = 'view',
+    quick = 'quickadd',
 }
 
 
@@ -51,6 +44,7 @@ export class GCGetter {
 
         const [parame] = context.getArguments();
 
+        switch (parame) {
             case (Command.connect):
                 const response = (`${this.urli}client_id=${Client_id}&redirect_uri=${redirect}/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar&prompt=consent&access_type=offline&response_type=code`);
 
@@ -69,7 +63,7 @@ export class GCGetter {
             case (Command.lgout):
 
                 const mesg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
-                const logresponse = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=${redirect}`;
+                const logresponse = `https://www.google.com/accounts/Logout?continue=${redirect}`;
                 try {
                     mesg.setText(logresponse);
                     await modify.getCreator().finish(mesg);
@@ -157,8 +151,24 @@ export class GCGetter {
                     }
                 }
                 break;
-        }
 
+            case (Command.quick):
+
+                const title = context.getArguments().join(' ');
+                const titlenew = title.split('\"');
+                //const fintitle = titlenew.;
+                const token = await persistence.getAT(context.getSender());
+                const quick_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events/quickAdd?key=${api_key}&text=${titlenew[1]}`;
+                const quickresponse = await http.post(quick_url, { headers: { 'Authorization': `Bearer ${token}`, } });
+                console.log('This is the quick-add response', quickresponse);
+                if (quickresponse && quickresponse.statusCode == HttpStatusCode.OK) {
+                    const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
+                    msg.setText('Quickadd event succcessfully created!');
+                    await modify.getCreator().finish(msg);
+                }
+                break;
+        }
+    }
 
 
 }
