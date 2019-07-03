@@ -9,6 +9,13 @@ Integrates google calendar with your Rocket.Chat server.
 * Get reminders and notifications of events.
 * Create public events inside a room inviting all the users inside the room.
 
+## How to use it? 
+* Download or clone the repository to your local system.
+* Get your local Rocket.Chat server running.
+* Navigate inside the folder using terminal.
+* Run command `rc-apps deploy --url http://localhost:3000 --username {your_username} --password {your_password}`
+* This gets the app installed in your local server, now navigate to app screen inside Options -> Administration -> Apps -> Google Calendar
+* Activate the app and start using it inside any of your room! 
 
 ## Quick Start Guide
 
@@ -21,7 +28,10 @@ Integrates google calendar with your Rocket.Chat server.
 
 * `/calendar logout` : Once you are done with viewing, creating your calendar events and wants to log out of the gmail account, use this command and it will log you out and redirect to your home page.
 
+* `/calendar quickadd {title of the event}` - This slashcommand can be used to create an event starting from time the slashcommand is called to one hour in duration.
 
 
+### Feedback and Suggestions
+Contribute to this repository by opening an issue if you have any feedback or suggestions for improvements or even some feature request!
 
 
