@@ -10,6 +10,16 @@ import { stringify } from 'querystring';
 import { displayevents } from '../helpers/result';
 import { ok } from 'assert';
 
+import { stringify } from 'querystring';
+import { displayevents } from '../helpers/result';
+
+
+enum Command {
+    connect = 'auth',
+    lgout = 'logout',
+    show = 'view',
+    make = 'create',
+}
 
 enum Command {
     connect = 'auth',
@@ -39,14 +49,15 @@ export class GCGetter {
 
 
         let signedin: boolean = false;
-        const message = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
 
+        const message = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
 
         const [parameter] = context.getArguments();
 
         switch (parameter) {
             case (Command.connect):
                 const response = (`${this.urli}client_id=${client_id}&redirect_uri=${redirect}/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar&prompt=consent&access_type=offline&response_type=code`);
+
 
                 try {
                     message.setText(response);
@@ -62,6 +73,7 @@ export class GCGetter {
 
             case (Command.lgout):
 
+
                 // const mesg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
                 const logresponse = `https://www.google.com/accounts/Logout?continue=${redirect}`;
                 try {
@@ -72,6 +84,8 @@ export class GCGetter {
                     message.setText('An error occurred when trying to send the logout url:disappointed_relieved:');
 
                     modify.getNotifier().notifyUser(context.getSender(), message.getMessage());
+
+
                 }
 
 
