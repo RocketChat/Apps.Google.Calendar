@@ -6,20 +6,7 @@ import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocke
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { WebhookEndpoint } from '../helpers/Webhook';
 import { AppPersistence } from '../helpers/persistence';
-import { stringify } from 'querystring';
 import { displayevents } from '../helpers/result';
-import { ok } from 'assert';
-
-import { stringify } from 'querystring';
-import { displayevents } from '../helpers/result';
-
-
-enum Command {
-    connect = 'auth',
-    lgout = 'logout',
-    show = 'view',
-    make = 'create',
-}
 
 enum Command {
     connect = 'auth',
