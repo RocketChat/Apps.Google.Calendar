@@ -15,7 +15,7 @@ Integrates google calendar with your Rocket.Chat server.
 * Navigate inside the folder using terminal.
 * Run command `rc-apps deploy --url http://localhost:3000 --username {your_username} --password {your_password}`
 * This gets the app installed in your local server, now navigate to app screen inside Options -> Administration -> Apps -> Google Calendar
-* Activate the app and start using it inside any of your room! 
+* Activate the app and put in the credentials and start using it inside any of your room! 
 
 ## Quick Start Guide
 
