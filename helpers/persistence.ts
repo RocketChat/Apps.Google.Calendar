@@ -29,7 +29,7 @@ export class AppPersistence {
         const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
 
         const [result] = await this.persistenceRead.readByAssociation(user_association);
-        return result ? (result as any).atoken.atoken : undefined;
+        return result ? (result as any).atoken.acess_token : undefined;
 
     }
 }
