@@ -1,6 +1,8 @@
 import { HttpStatusCode, IHttp, ILogger, IRead, IHttpResponse, IModify, IPersistence } from '@rocket.chat/apps-engine/definition/accessors';
 import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { GCResults } from '../helpers/GCResult';
+import { MessageActionButtonsAlignment } from '@rocket.chat/apps-engine/definition/messages/MessageActionButtonsAlignment';
+import { MessageActionType } from '@rocket.chat/apps-engine/definition/messages/MessageActionType';
 import { GoogleCalendarApp } from '../GoogleCalendar';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
@@ -170,33 +172,54 @@ export class GCGetter {
                     await modify.getCreator().finish(message);
                 }
                 break;
-                
-            case (Command.calendar) :
+
+            case (Command.calendar):
 
                 const list_token = await persistence.getAT(context.getSender());
                 const list_url = `https://www.googleapis.com/calendar/v3/users/me/calendarList?key=${api_key}`;
                 const list_api_response = await http.get(list_url, { headers: { 'Authorization': `Bearer ${list_token}`, } });
-                console.log('This is the calendar list respose:',list_api_response);
+                console.log('This is the calendar list respose:', list_api_response);
 
                 for (var i = 0; i < list_api_response.data.items.length; i++) {
 
+                    const builder = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
+                    try {
+                        builder.addAttachment({
+                            color: '#00ff00',
+                            text: `*${[i + 1]})* ${list_api_response.data.items[i].summary}`,
+
+                        });
+                        //console.log('This is the calendarlist summary:',results);
+                        await modify.getCreator().finish(builder);
+                    } catch (e) {
+                        this.app.getLogger().error('Failed displaying calendars', e);
+                        builder.setText('An error occurred when sending the calendars as message :disappointed_relieved:');
+                    }
+                }
                 const builder = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
-                try{
-                 builder.addAttachment({
-                     color: '#00ff00',
-                     text:`*${[i + 1]})* ${list_api_response.data.items[i].summary}`,
-         
-                 });
-                 //console.log('This is the calendarlist summary:',results);
-                 await modify.getCreator().finish(builder);
-                 }catch (e) {
-                     this.app.getLogger().error('Failed displaying calendars', e);
-                     builder.setText('An error occurred when sending the calendars as message :disappointed_relieved:');
-                 }
-         
-            }
+                //  const option = list_api_response.data.items[i].summary;
+                try {
+                    builder.addAttachment({
+                        color: '#00ff00',
+                        actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+                        actions: list_api_response.data.items.map((option: string, index: number) => ({
+                            type: MessageActionType.BUTTON,
+                            text: `${index + 1}`,
+                            msg_in_chat_window: true,
+                            msg: `Calendar *${index + 1}* is selected`,
+                        })),
+
+                    });
+                    const id = await modify.getCreator().finish(builder);
+                    console.log('This is the selected option:', id);
+                } catch (e) {
+                    this.app.getLogger().error('Failed displaying calendars', e);
+                    builder.setText('An error occurred when sending the calendars as message :disappointed_relieved:');
+                }
+
 
                 break;
+
         }
     }
 
