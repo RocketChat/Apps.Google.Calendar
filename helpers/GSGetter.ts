@@ -7,6 +7,7 @@ import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { WebhookEndpoint } from '../helpers/Webhook';
 import { AppPersistence } from '../helpers/persistence';
 import { displayevents } from '../helpers/result';
+import { display_calendars } from '../helpers/result';
 
 enum Command {
     connect = 'auth',
@@ -14,6 +15,7 @@ enum Command {
     show = 'view',
     make = 'create',
     quick = 'quickadd',
+    calendar = 'list',
 }
 
 
@@ -167,6 +169,33 @@ export class GCGetter {
                     message.setText('Quickadd event succcessfully created!');
                     await modify.getCreator().finish(message);
                 }
+                break;
+                
+            case (Command.calendar) :
+
+                const list_token = await persistence.getAT(context.getSender());
+                const list_url = `https://www.googleapis.com/calendar/v3/users/me/calendarList?key=${api_key}`;
+                const list_api_response = await http.get(list_url, { headers: { 'Authorization': `Bearer ${list_token}`, } });
+                console.log('This is the calendar list respose:',list_api_response);
+
+                for (var i = 0; i < list_api_response.data.items.length; i++) {
+
+                const builder = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
+                try{
+                 builder.addAttachment({
+                     color: '#00ff00',
+                     text:`*${[i + 1]})* ${list_api_response.data.items[i].summary}`,
+         
+                 });
+                 //console.log('This is the calendarlist summary:',results);
+                 await modify.getCreator().finish(builder);
+                 }catch (e) {
+                     this.app.getLogger().error('Failed displaying calendars', e);
+                     builder.setText('An error occurred when sending the calendars as message :disappointed_relieved:');
+                 }
+         
+            }
+
                 break;
         }
     }

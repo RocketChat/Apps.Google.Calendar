@@ -49,5 +49,11 @@ export async function displayevents(result: any, modify: IModify, context: Slash
         builder.setText('An error occurred when sending the events as message :disappointed_relieved:');
     }
 
+    
+
+}
+
+export async function display_calendars(results:any, modify:IModify, context:SlashCommandContext){
+        
 
 }
