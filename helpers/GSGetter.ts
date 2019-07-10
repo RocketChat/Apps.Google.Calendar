@@ -180,42 +180,29 @@ export class GCGetter {
                 const list_api_response = await http.get(list_url, { headers: { 'Authorization': `Bearer ${list_token}`, } });
                 console.log('This is the calendar list respose:', list_api_response);
 
+                let all_calendars: Array<string> = list_api_response.data.items;
+
                 for (var i = 0; i < list_api_response.data.items.length; i++) {
-
-                    const builder = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
-                    try {
-                        builder.addAttachment({
-                            color: '#00ff00',
-                            text: `*${[i + 1]})* ${list_api_response.data.items[i].summary}`,
-
-                        });
-                        //console.log('This is the calendarlist summary:',results);
-                        await modify.getCreator().finish(builder);
-                    } catch (e) {
-                        this.app.getLogger().error('Failed displaying calendars', e);
-                        builder.setText('An error occurred when sending the calendars as message :disappointed_relieved:');
-                    }
+                    all_calendars[i] = list_api_response.data.items[i].summary;
                 }
-                const builder = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
-                //  const option = list_api_response.data.items[i].summary;
-                try {
-                    builder.addAttachment({
-                        color: '#00ff00',
-                        actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
-                        actions: list_api_response.data.items.map((option: string, index: number) => ({
-                            type: MessageActionType.BUTTON,
-                            text: `${index + 1}`,
-                            msg_in_chat_window: true,
-                            msg: `Calendar *${index + 1}* is selected`,
-                        })),
 
-                    });
-                    const id = await modify.getCreator().finish(builder);
-                    console.log('This is the selected option:', id);
-                } catch (e) {
-                    this.app.getLogger().error('Failed displaying calendars', e);
-                    builder.setText('An error occurred when sending the calendars as message :disappointed_relieved:');
-                }
+                message.addAttachment({
+                    color: '#73a7ce',
+                    text: all_calendars.map((option, index) => `*${index + 1}*) ${option}`).join('\n\n'),
+
+                });
+
+                message.addAttachment({
+                    color: '#73a7ce',
+                    actionButtonsAlignment: MessageActionButtonsAlignment.HORIZONTAL,
+                    actions: all_calendars.map((option: string, index: number) => ({
+                        type: MessageActionType.BUTTON,
+                        text: `${index + 1}`,
+                        msg_in_chat_window: true,
+                        msg: `${all_calendars[index]} is selected`,
+                    })),
+                });
+                await modify.getCreator().finish(message);
 
 
                 break;
