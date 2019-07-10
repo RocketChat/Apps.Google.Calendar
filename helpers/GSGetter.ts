@@ -18,6 +18,7 @@ enum Command {
     make = 'create',
     quick = 'quickadd',
     calendar = 'list',
+    config = 'configure',
 }
 
 
@@ -199,7 +200,7 @@ export class GCGetter {
                         type: MessageActionType.BUTTON,
                         text: `${index + 1}`,
                         msg_in_chat_window: true,
-                        msg: `${all_calendars[index]} is selected`,
+                        msg: `/calendar configure ${all_calendars[index]}`,
                     })),
                 });
                 await modify.getCreator().finish(message);
@@ -207,6 +208,23 @@ export class GCGetter {
 
                 break;
 
+            case (Command.config):
+
+                const calendar = context.getArguments();
+                let selected_calendar;
+                const match = calendar[1].match(/(?:\@gmail\.com)/);
+                if (match) {
+                    //console.log('Primary calendar detected');
+                    selected_calendar = 'primary';
+                }
+                else {
+                    selected_calendar = calendar[1];
+                }
+                const id = await persistence.connect_user_to_calendar(selected_calendar, context.getSender());
+                const final_calendar = await persistence.get_preferred_calendar(context.getSender());
+                console.log('This is the final calendar', final_calendar);
+
+                break;
         }
     }
 

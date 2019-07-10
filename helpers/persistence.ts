@@ -32,4 +32,19 @@ export class AppPersistence {
         return result ? (result as any).atoken.acess_token : undefined;
 
     }
+
+    public async connect_user_to_calendar(calendar: any, user: IUser): Promise<void> {
+        const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
+
+        await this.persistence.updateByAssociations([user_association], { calendar }, true);
+
+    }
+
+    public async get_preferred_calendar(user: IUser): Promise<void> {
+        const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
+
+        const [result] = await this.persistenceRead.readByAssociation(user_association);
+        return result ? (result as any).calendar : undefined;
+
+    }
 }
