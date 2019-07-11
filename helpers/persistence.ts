@@ -1,6 +1,7 @@
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
-import { IPersistence, IPersistenceRead } from '@rocket.chat/apps-engine/definition/accessors';
+import { IPersistence, IPersistenceRead, IRead, IHttp, IModify } from '@rocket.chat/apps-engine/definition/accessors';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
+import { SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 
 
 export class AppPersistence {
@@ -33,18 +34,18 @@ export class AppPersistence {
 
     }
 
-    public async connect_user_to_calendar(calendar: any, user: IUser): Promise<void> {
+    public async connect_user_to_calendar_id(calendar: any, user: IUser): Promise<void> {
         const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
 
         await this.persistence.updateByAssociations([user_association], { calendar }, true);
 
     }
 
-    public async get_preferred_calendar(user: IUser): Promise<void> {
+    public async get_preferred_calendar_id(user: IUser): Promise<void> {
+
         const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
-
         const [result] = await this.persistenceRead.readByAssociation(user_association);
-        return result ? (result as any).calendar : undefined;
-
+        const calendar_id = result ? (result as any).calendar : undefined;
+        return calendar_id;
     }
 }

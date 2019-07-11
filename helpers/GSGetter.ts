@@ -187,6 +187,7 @@ export class GCGetter {
                     all_calendars[i] = list_api_response.data.items[i].summary;
                 }
 
+                console.log('This is calendar name inside list command:', all_calendars[2])
                 message.addAttachment({
                     color: '#73a7ce',
                     text: all_calendars.map((option, index) => `*${index + 1}*) ${option}`).join('\n\n'),
@@ -211,18 +212,23 @@ export class GCGetter {
             case (Command.config):
 
                 const calendar = context.getArguments();
-                let selected_calendar;
-                const match = calendar[1].match(/(?:\@gmail\.com)/);
-                if (match) {
-                    //console.log('Primary calendar detected');
-                    selected_calendar = 'primary';
+                console.log('This is calendar name inside GCgetter:', calendar[1]);
+
+                const configure_token = await persistence.getAT(context.getSender());
+                const configure_url = `https://www.googleapis.com/calendar/v3/users/me/calendarList?key=${api_key}`;
+                const configure_api_response = await http.get(configure_url, { headers: { 'Authorization': `Bearer ${configure_token}`, } });
+                //console.log('This is the configure list respose:', configure_api_response);
+                let selected_calendar_id;
+
+                for (var i = 0; i < configure_api_response.data.items.length; i++) {
+                    if (configure_api_response.data.items[i].summary.includes(`${calendar[1]}`)) {
+                        selected_calendar_id = configure_api_response.data.items[i].id;
+                    }
                 }
-                else {
-                    selected_calendar = calendar[1];
-                }
-                const id = await persistence.connect_user_to_calendar(selected_calendar, context.getSender());
-                const final_calendar = await persistence.get_preferred_calendar(context.getSender());
-                console.log('This is the final calendar', final_calendar);
+                console.log('This is final calendar id inside persis:', selected_calendar_id);
+                const id = await persistence.connect_user_to_calendar_id(selected_calendar_id, context.getSender());
+                const final_calendar_id = await persistence.get_preferred_calendar_id(context.getSender());
+                console.log('This is the final calendar id from function:', final_calendar_id);
 
                 break;
         }

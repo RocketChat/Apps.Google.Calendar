@@ -36,6 +36,8 @@ Integrates google calendar with your Rocket.Chat server.
 
 * `/calendar quickadd {title of the event}` - This slashcommand can be used to create an event starting from time the slashcommand is called to one hour in duration.
 
+* `/calendar list` - Shows you the list of the calendars that are present on your user profile. For each calendar there is a button, which you can click and decide which calendar to communicate with and that calendar will be used for fetching and editing events (though this is optional, Google Calendar app uses your primary calendar by default.)
+
 
 ### Feedback and Suggestions
 Contribute to this repository by opening an issue if you have any feedback or suggestions for improvements or even some feature request!
