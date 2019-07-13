@@ -3,7 +3,7 @@ import { HttpStatusCode, IHttp, ILogger, IRead } from '@rocket.chat/apps-engine/
 import { IApiRequest } from '@rocket.chat/apps-engine/definition/api';
 
 export class GCResults {
-    public acess_token: string;
+    public access_token: string;
 
     constructor(data?: any) {
 
