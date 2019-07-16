@@ -36,16 +36,16 @@ export class AppPersistence {
 
     public async connect_user_to_calendar_id(calendar: any, user: IUser): Promise<void> {
         const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
-
-        await this.persistence.updateByAssociations([user_association], { calendar }, true);
+        const calendarid = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'selected calendar');
+        await this.persistence.updateByAssociations([user_association, calendarid], { calendar }, true);
 
     }
 
-    public async get_preferred_calendar_id(user: IUser): Promise<void> {
+    public async get_preferred_calendar_id(user: IUser): Promise<any> {
 
         const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
-        const [result] = await this.persistenceRead.readByAssociation(user_association);
-        const calendar_id = result ? (result as any).calendar : undefined;
-        return calendar_id;
+        const calendarid = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'selected calendar');
+        const [result] = await this.persistenceRead.readByAssociations([user_association, calendarid]);
+        return result ? (result as any).calendar : 'primary';
     }
 }
