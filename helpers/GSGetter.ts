@@ -89,8 +89,6 @@ export class GCGetter {
 
                 const atoken = await persistence.getAT(context.getSender());
 
-                // console.log('This is the access token inside GCGetter:', atoken);
-
                 break;
 
             case (Command.show):
@@ -103,7 +101,6 @@ export class GCGetter {
                 const api_response = await http.get(url, { headers: { Authorization: `Bearer ${new_token}` } });
 
                 for (let i = 0; i < api_response.data.items.length; i++) {
-                    //  console.log( newresponse.data.items[i].summary);
                     await displayevents(api_response.data.items[i], modify, context);
 
                 }
@@ -116,7 +113,6 @@ export class GCGetter {
                 const params = context.getArguments().join(' ');
                 const array = params.split("\"");
                 const create_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}`;
-                console.log('Create event array elements are these:', array[1], array[3]);
 
                 const datetime = array[3] + 'T' + array[5];
                 const date = new Date(datetime);
@@ -125,7 +121,6 @@ export class GCGetter {
                 const end_date = new Date(e_date);
                 const end_datetime = end_date.toISOString();
                 const create_api_response = await http.post(create_url, { headers: { 'Authorization': `Bearer ${access_token}`, }, data: { 'summary': `${array[1]}`, 'end': { 'dateTime': `${end_datetime}`, }, 'start': { 'dateTime': `${start_datetime}` } } });
-                console.log('This is the create event request response: ', create_api_response);
                 if (create_api_response.statusCode == HttpStatusCode.OK && create_api_response.data.status == "confirmed") {
                     try {
                         message.addAttachment({
@@ -164,7 +159,6 @@ export class GCGetter {
                 const token = await persistence.getAT(context.getSender());
                 const quick_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events/quickAdd?key=${api_key}&text=${title_new[1]}`;
                 const quick_api_response = await http.post(quick_url, { headers: { Authorization: `Bearer ${token}`, } });
-                console.log('This is the quick-add response', quick_api_response);
                 if (quick_api_response && quick_api_response.statusCode === HttpStatusCode.OK) {
                     // const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
                     message.setText('Quickadd event succcessfully created!');
@@ -177,7 +171,6 @@ export class GCGetter {
                 const list_token = await persistence.getAT(context.getSender());
                 const list_url = `https://www.googleapis.com/calendar/v3/users/me/calendarList?key=${api_key}`;
                 const list_api_response = await http.get(list_url, { headers: { Authorization: `Bearer ${list_token}`, } });
-                console.log('This is the calendar list response:', list_api_response);
                 let current_calendar = await persistence.get_preferred_calendar_id(context.getSender());
                 (list_api_response.data.items as Array<any>).forEach((value) => {
 
@@ -205,11 +198,8 @@ export class GCGetter {
             case (Command.config):
 
                 const calendar = context.getArguments();
-                console.log('This is final calendar id inside persis:', calendar[1]);
                 const id = await persistence.connect_user_to_calendar_id(calendar[1], context.getSender());
                 const final_calendar_id = await persistence.get_preferred_calendar_id(context.getSender());
-                console.log('This is the final calendar id from function:', final_calendar_id);
-
                 break;
         }
     }

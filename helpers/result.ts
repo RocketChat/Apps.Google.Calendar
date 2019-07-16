@@ -4,7 +4,6 @@ import { SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashco
 
 export async function displayevents(result: any, modify: IModify, context: SlashCommandContext): Promise<void> {
 
-    console.log('This is inside result function');
     const summary = result.summary as string;
     const start_time = result.start.dateTime as string;
     let end_time = result.end.dateTime as string;
@@ -50,10 +49,5 @@ export async function displayevents(result: any, modify: IModify, context: Slash
     }
 
     
-
-}
-
-export async function display_calendars(results:any, modify:IModify, context:SlashCommandContext){
-        
 
 }
