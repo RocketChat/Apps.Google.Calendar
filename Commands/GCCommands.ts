@@ -1,12 +1,9 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { GoogleCalendarApp } from '../GoogleCalendar';
-import { GCGetter } from '../helpers/GSGetter';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
 import { AppPersistence } from '../helpers/persistence';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
-
-
 
 export class GCCommand implements ISlashCommand {
 

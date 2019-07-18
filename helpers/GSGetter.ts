@@ -87,13 +87,13 @@ export class GCGetter {
                 }
 
 
-                const atoken = await persistence.getAT(context.getSender());
+                const atoken = await persistence.get_access_token(context.getSender());
 
                 break;
 
             case (Command.show):
 
-                const new_token = await persistence.getAT(context.getSender());
+                const new_token = await persistence.get_access_token(context.getSender());
 
                 const dat = new Date();
                 const minimum_date = dat.toISOString();
@@ -109,7 +109,7 @@ export class GCGetter {
 
             case (Command.make):
 
-                const access_token = await persistence.getAT(context.getSender());
+                const access_token = await persistence.get_access_token(context.getSender());
                 const params = context.getArguments().join(' ');
                 const array = params.split("\"");
                 const create_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}`;
@@ -156,7 +156,7 @@ export class GCGetter {
 
                 const title = context.getArguments().join(' ');
                 const title_new = title.split('\"');
-                const token = await persistence.getAT(context.getSender());
+                const token = await persistence.get_access_token(context.getSender());
                 const quick_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events/quickAdd?key=${api_key}&text=${title_new[1]}`;
                 const quick_api_response = await http.post(quick_url, { headers: { Authorization: `Bearer ${token}`, } });
                 if (quick_api_response && quick_api_response.statusCode === HttpStatusCode.OK) {
@@ -168,7 +168,7 @@ export class GCGetter {
 
             case (Command.calendar):
 
-                const list_token = await persistence.getAT(context.getSender());
+                const list_token = await persistence.get_access_token(context.getSender());
                 const list_url = `https://www.googleapis.com/calendar/v3/users/me/calendarList?key=${api_key}`;
                 const list_api_response = await http.get(list_url, { headers: { Authorization: `Bearer ${list_token}`, } });
                 let current_calendar = await persistence.get_preferred_calendar_id(context.getSender());
