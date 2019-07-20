@@ -1,5 +1,5 @@
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
-import { IPersistence, IPersistenceRead, IRead, IHttp, IModify } from '@rocket.chat/apps-engine/definition/accessors';
+import { IPersistence, IPersistenceRead, IRead, IRoomRead, IHttp, IModify } from '@rocket.chat/apps-engine/definition/accessors';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
 export class AppPersistence {
