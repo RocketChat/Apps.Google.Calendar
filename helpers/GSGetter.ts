@@ -230,13 +230,13 @@ export class GCGetter {
                 const inviteend_date = new Date(invite_e_date);
                 const invite_end_datetime = inviteend_date.toISOString();
 
-                for (let index = 0; index < email_ids.length-1; index++) {
-                    mapping = [mapping ,"{'email':",'"' , email_ids[index] ,"'}"].join(" ");
+                for (let index = 0; index < email_ids.length; index++) {
+                    mapping = mapping.concat (`{'email':'${email_ids[index]}'}`);
                     if((email_ids.length-1)!=index) {
-                    mapping=[mapping, ","].join(" ");
+                    mapping=mapping+ ",";
                     }
                 }
-                mapping = mapping.trim();
+                //mapping = mapping.trim();
                 const invite_api_response = await http.post(invite_url, { headers: { Authorization: `Bearer ${invite_token}`, }, data: { 'summary': `${invite_array[1]}`, 'end': { 'dateTime': `${invite_end_datetime}`, }, 'attendees' : [`${mapping}`],'start': { 'dateTime': `${invitestart_datetime}` }, 'visibility':'public' } });
                 console.log('This is invite response:', invite_api_response);
 
