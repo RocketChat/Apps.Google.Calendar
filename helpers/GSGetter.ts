@@ -208,13 +208,11 @@ export class GCGetter {
 
                 const user_id = await read.getRoomReader().getMembers(context.getRoom().id);
                 let email_ids: Array<any> = user_id;
-                let mapping: string = '';
+                let mapping: Array<any> = [];
 
                 for (let index = 0; index < user_id.length; index++) {
                     email_ids[index] = user_id[index].emails[0].address;
                 }
-
-                message.setText('Slashcommand executed');
                 await modify.getCreator().finish(message);
                 console.log('This are all the email ids :', email_ids);
 
@@ -231,13 +229,9 @@ export class GCGetter {
                 const invite_end_datetime = inviteend_date.toISOString();
 
                 for (let index = 0; index < email_ids.length; index++) {
-                    mapping = mapping.concat (`{'email':'${email_ids[index]}'}`);
-                    if((email_ids.length-1)!=index) {
-                    mapping=mapping+ ",";
-                    }
+                    mapping.push({ email: email_ids[index] });
                 }
-                //mapping = mapping.trim();
-                const invite_api_response = await http.post(invite_url, { headers: { Authorization: `Bearer ${invite_token}`, }, data: { 'summary': `${invite_array[1]}`, 'end': { 'dateTime': `${invite_end_datetime}`, }, 'attendees' : [`${mapping}`],'start': { 'dateTime': `${invitestart_datetime}` }, 'visibility':'public' } });
+                const invite_api_response = await http.post(invite_url, { headers: { Authorization: `Bearer ${invite_token}`, }, data: { 'summary': `${invite_array[1]}`, 'end': { 'dateTime': `${invite_end_datetime}`, }, 'attendees': mapping, 'start': { 'dateTime': `${invitestart_datetime}` }, } });
                 console.log('This is invite response:', invite_api_response);
 
                 console.log('This is mapping result', mapping);
