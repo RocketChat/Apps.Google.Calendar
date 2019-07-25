@@ -6,24 +6,13 @@ import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocke
 import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { WebhookEndpoint } from '../helpers/Webhook';
 import { AppPersistence } from '../helpers/persistence';
-import { stringify } from 'querystring';
 import { displayevents } from '../helpers/result';
-
-import { stringify } from 'querystring';
-import { displayevents } from '../helpers/result';
-
 
 enum Command {
     connect = 'auth',
     lgout = 'logout',
     show = 'view',
     make = 'create',
-}
-
-enum Command {
-    connect = 'auth',
-    lgout = 'logout',
-    show = 'view',
 }
 
 
@@ -68,16 +57,16 @@ export class GCGetter {
 
             case (Command.lgout):
 
-                const mesg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
+                const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
                 const logresponse = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=${redirect}`;
                 try {
-                    mesg.setText(logresponse);
-                    await modify.getCreator().finish(mesg);
+                    msg.setText(logresponse);
+                    await modify.getCreator().finish(msg);
                 } catch (e) {
                     this.app.getLogger().error('Failed sending logout url', e);
-                    mesg.setText('An error occurred when trying to send the logout url:disappointed_relieved:');
+                    msg.setText('An error occurred when trying to send the logout url:disappointed_relieved:');
 
-                    modify.getNotifier().notifyUser(context.getSender(), mesg.getMessage());
+                    modify.getNotifier().notifyUser(context.getSender(), msg.getMessage());
                 }
 
 
