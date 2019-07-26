@@ -2,8 +2,6 @@ import { HttpStatusCode, IHttp, ILogger, IRead, IHttpResponse, IModify, IPersist
 import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { GCResults } from '../helpers/GCResult';
 import { GoogleCalendarApp } from '../GoogleCalendar';
-import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
-import { SettingType } from '@rocket.chat/apps-engine/definition/settings';
 import { WebhookEndpoint } from '../helpers/Webhook';
 import { AppPersistence } from '../helpers/persistence';
 import { displayevents } from '../helpers/result';
@@ -40,6 +38,8 @@ export class GCGetter {
 
         const [parame] = context.getArguments();
 
+           switch (parame) {
+                   
             case (Command.connect):
                 const response = (`${this.urli}client_id=${Client_id}&redirect_uri=${redirect}/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=https://www.googleapis.com/auth/calendar&prompt=consent&access_type=offline&response_type=code`);
 
@@ -57,7 +57,6 @@ export class GCGetter {
 
             case (Command.lgout):
 
-                const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
                 const logresponse = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=${redirect}`;
                 try {
                     msg.setText(logresponse);
@@ -148,6 +147,6 @@ export class GCGetter {
                 break;
         }
 
-
+    }
 
 }
