@@ -16,6 +16,7 @@ enum Command {
 }
 
 
+
 export class GCGetter {
     private readonly SCOPES = 'https://www.googleapis.com/auth/calendar';
     private readonly urli = 'https://accounts.google.com/o/oauth2/v2/auth?';
@@ -82,7 +83,6 @@ export class GCGetter {
                     message.setText('An error occurred when trying to send the logout url:disappointed_relieved:');
 
                     modify.getNotifier().notifyUser(context.getSender(), message.getMessage());
-
 
                 }
 
