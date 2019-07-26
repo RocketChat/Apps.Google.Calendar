@@ -39,6 +39,7 @@ export class GCGetter {
         const [parameter] = context.getArguments();
 
         switch (parameter) {
+
             case (Command.connect):
                 const response = (`${this.urli}client_id=${client_id}&redirect_uri=${redirect}/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=${this.SCOPES}&prompt=consent&access_type=offline&response_type=code`);
 
@@ -65,8 +66,8 @@ export class GCGetter {
                 break;
 
             case (Command.lgout):
-
                 const logresponse = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=${redirect}`;
+
                 try {
                     message.addAttachment({
                         text: 'Click the button to logout your Gmail account.',
@@ -203,4 +204,5 @@ export class GCGetter {
                 break;
         }
     }
+
 }
