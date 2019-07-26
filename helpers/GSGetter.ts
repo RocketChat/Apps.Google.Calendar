@@ -14,7 +14,7 @@ enum Command {
     show = 'view',
     make = 'create',
     quick = 'quickadd',
-}
+
 
 
 export class GCGetter {
@@ -71,7 +71,6 @@ export class GCGetter {
                     message.setText('An error occurred when trying to send the logout url:disappointed_relieved:');
 
                     modify.getNotifier().notifyUser(context.getSender(), message.getMessage());
-
 
                 }
 
