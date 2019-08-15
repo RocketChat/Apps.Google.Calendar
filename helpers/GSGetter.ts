@@ -244,8 +244,6 @@ export class GCGetter {
                         message.setText('An error occurred when sending the event creation as message :disappointed_relieved:');
                     }
                 } else {
-                    console.log('This is the error message:', invite_api_response.data.error.message);
-
                     try {
                         message.addAttachment({
 
