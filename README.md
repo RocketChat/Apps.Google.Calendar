@@ -40,6 +40,7 @@ Integrates google calendar with your Rocket.Chat server.
 
 * `/calendar list` - Shows you the list of the calendars that are present on your user profile. For each calendar there is a button, which you can click and decide which calendar to communicate with and that calendar will be used for fetching and editing events (though this is optional, Google Calendar app uses your primary calendar by default.)
 
+* `/calendar invite "Title" "Date" "Starttime" "Endtime" ` - This slashcommand will create public events which will include inviting all the users present inside the room (in which command is called) to this event. All the users will receive the event invite through e-mails. They can respond to that invite and the organizer will receive their response notifications via e-mails.
 
 ### Feedback and Suggestions
 Contribute to this repository by opening an issue if you have any feedback or suggestions for improvements or even some feature request!

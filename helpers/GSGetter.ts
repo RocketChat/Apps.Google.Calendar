@@ -4,6 +4,7 @@ import { MessageActionType } from '@rocket.chat/apps-engine/definition/messages/
 import { GoogleCalendarApp } from '../GoogleCalendar';
 import { AppPersistence } from '../helpers/persistence';
 import { displayevents } from '../helpers/result';
+import { IUser } from '@rocket.chat/apps-engine/definition/users';
 
 enum Command {
     connect = 'auth',
@@ -13,6 +14,7 @@ enum Command {
     quick = 'quickadd',
     calendar = 'list',
     config = 'configure',
+    public = 'invite',
 }
 
 
@@ -201,6 +203,61 @@ export class GCGetter {
                 const calendar = context.getArguments();
                 const id = await persistence.connect_user_to_calendar_id(calendar[1], context.getSender());
                 const final_calendar_id = await persistence.get_preferred_calendar_id(context.getSender());
+                break;
+
+            case (Command.public):
+
+                const user_id = await read.getRoomReader().getMembers(context.getRoom().id);
+                let email_ids: Array<any> = user_id;
+                let mapping: Array<any> = [];
+
+                for (let index = 0; index < user_id.length; index++) {
+                    email_ids[index] = user_id[index].emails[0].address;
+                }
+                await modify.getCreator().finish(message);
+                const invite_token = await persistence.get_access_token(context.getSender());
+                const invite_parameters = context.getArguments().join(' ');
+                const invite_array = invite_parameters.split("\"");
+                const invite_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&sendUpdates=all`;
+
+                const invite_datetime = invite_array[3] + 'T' + invite_array[5];
+                const invite_date = new Date(invite_datetime);
+                const invitestart_datetime = invite_date.toISOString();
+                const invite_e_date = invite_array[3] + 'T' + invite_array[7];
+                const inviteend_date = new Date(invite_e_date);
+                const invite_end_datetime = inviteend_date.toISOString();
+
+                for (let index = 0; index < email_ids.length; index++) {
+                    mapping.push({ email: email_ids[index] });
+                }
+                const invite_api_response = await http.post(invite_url, { headers: { Authorization: `Bearer ${invite_token}`, }, data: { 'summary': `${invite_array[1]}`, 'end': { 'dateTime': `${invite_end_datetime}`, }, 'attendees': mapping, 'start': { 'dateTime': `${invitestart_datetime}` }, } });
+                if (invite_api_response.statusCode === HttpStatusCode.OK && invite_api_response.data.status === 'confirmed') {
+                    try {
+                        message.addAttachment({
+
+                            text: `Event has been created. Find the event at [${invite_api_response.data.summary}](${invite_api_response.data.htmlLink}) `,
+
+
+                        });
+                        await modify.getCreator().finish(message);
+                    } catch (e) {
+                        this.app.getLogger().error('Failed creating events', e);
+                        message.setText('An error occurred when sending the event creation as message :disappointed_relieved:');
+                    }
+                } else {
+                    try {
+                        message.addAttachment({
+
+                            text: `Event could not be created. It encountered the error: ${invite_api_response.data.error.message}. Please try again. `,
+
+
+                        });
+                        await modify.getCreator().finish(message);
+                    } catch (e) {
+                        this.app.getLogger().error('Failed creating events', e);
+                        message.setText('An error occurred when sending the event creation as message :disappointed_relieved:');
+                    }
+                }
                 break;
         }
     }
