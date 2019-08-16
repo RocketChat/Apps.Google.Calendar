@@ -1,6 +1,6 @@
-import { IModify } from '@rocket.chat/apps-engine/definition/accessors';
-import { SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
-
+import { IModify, IRead, IHttp, HttpStatusCode, IPersistence } from '@rocket.chat/apps-engine/definition/accessors';
+import { SlashCommandContext, ISlashCommand } from '@rocket.chat/apps-engine/definition/slashcommands';
+import { AppPersistence } from '../helpers/persistence';
 
 export async function displayevents(result: any, modify: IModify, context: SlashCommandContext): Promise<void> {
 
@@ -41,5 +41,38 @@ export async function displayevents(result: any, modify: IModify, context: Slash
     } catch (e) {
         this.app.getLogger().error('Failed displaying events', e);
         builder.setText('An error occurred when sending the events as message :disappointed_relieved:');
+    }
+}
+
+export async function get_access_token(result: any): Promise<any> {
+
+    const token = result.data.access_token;
+    return token;
+}
+
+export async function get_refresh_token(result: any): Promise<any> {
+
+    const token = result.data.refresh_token;
+    return token;
+}
+
+export async function refresh_access_token(token: string, read: IRead, http: IHttp, modify: IModify, context: SlashCommandContext, persis: IPersistence): Promise<any> {
+
+    const client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid');
+    const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key');
+    const url = `https://www.googleapis.com/oauth2/v4/token?refresh_token=${token}&client_id=${client_id}&client_secret=${secret}&grant_type=refresh_token`;
+    const message = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
+
+    const refresh_response = await http.post(url);
+    console.log('This is respones from new ref token inside refresh acc-token function:', refresh_response);
+    if (refresh_response.statusCode == HttpStatusCode.OK) {
+        const access_token = refresh_response.data.access_token;
+        const persistence = new AppPersistence(persis, read.getPersistenceReader());
+        const users_id = await persistence.getuid(client_id);
+        const new_id = await persistence.connect_user_to_token(access_token, users_id);
+
+        return access_token;
+    } else {
+        console.log('Encountered error during refreshing access token:', refresh_response.data.error.message);
     }
 }
