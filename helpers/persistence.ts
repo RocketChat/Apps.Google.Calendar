@@ -20,15 +20,15 @@ export class AppPersistence {
     }
     public async connect_user_to_token(atoken: any, user: string): Promise<void> {
         const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user);
-
-        await this.persistence.updateByAssociations([user_association], { atoken }, true);
+        const access = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'access token');
+        await this.persistence.updateByAssociations([user_association, access], { atoken }, true);
 
     }
     public async get_access_token(user: IUser): Promise<void> {
         const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
-
-        const [result] = await this.persistenceRead.readByAssociation(user_association);
-        return result ? (result as any).atoken.acess_token : undefined;
+        const access = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'access token');
+        const [result] = await this.persistenceRead.readByAssociations([user_association, access]);
+        return (result as any).atoken;
 
     }
 
@@ -45,5 +45,20 @@ export class AppPersistence {
         const calendarid = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'selected calendar');
         const [result] = await this.persistenceRead.readByAssociations([user_association, calendarid]);
         return result ? (result as any).calendar : 'primary';
+    }
+
+    public async connect_user_to_refresh_token(token: any, user: string): Promise<void> {
+        const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user);
+        const refresh = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'refresh token');
+        await this.persistence.updateByAssociations([user_association, refresh], { token }, true);
+
+    }
+
+    public async get_refresh_token_user(user: IUser): Promise<any> {
+
+        const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, user.id);
+        const refresh = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'refresh token');
+        const [result] = await this.persistenceRead.readByAssociations([user_association, refresh]);
+        return (result as any).token;
     }
 }

@@ -1,10 +1,11 @@
-import { HttpStatusCode, IHttp, ILogger, IRead, IHttpResponse, IModify, IPersistence } from '@rocket.chat/apps-engine/definition/accessors';
+import { HttpStatusCode, IHttp, ILogger, IRead, IHttpResponse, IModify, IPersistence, IPersistenceRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { MessageActionType } from '@rocket.chat/apps-engine/definition/messages/MessageActionType';
 import { GoogleCalendarApp } from '../GoogleCalendar';
 import { AppPersistence } from '../helpers/persistence';
-import { displayevents } from '../helpers/result';
+import { displayevents, refresh_access_token } from '../helpers/result';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
+import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 
 enum Command {
     connect = 'auth',
@@ -35,6 +36,7 @@ export class GCGetter {
         const redirect = await read.getEnvironmentReader().getSettings().getValueById('redirect_uri');
         const persistence = new AppPersistence(persis, read.getPersistenceReader());
         const id = await persistence.connectUserToClient(client_id, context.getSender());
+        const users_id = await persistence.getuid(client_id);
 
         const message = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
 
@@ -89,30 +91,37 @@ export class GCGetter {
 
                 }
 
-
                 const atoken = await persistence.get_access_token(context.getSender());
 
                 break;
 
             case (Command.show):
-
-                const new_token = await persistence.get_access_token(context.getSender());
+                let view_token = await persistence.get_access_token(context.getSender());
+                console.log('This is accesstoken before call fail:', view_token);
+                const view_refresh = await persistence.get_refresh_token_user(context.getSender());
 
                 const dat = new Date();
                 const minimum_date = dat.toISOString();
                 const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&showDeleted=false&timeMin=${minimum_date}`;
-                const api_response = await http.get(url, { headers: { Authorization: `Bearer ${new_token}` } });
+                let api_response = await http.get(url, { headers: { Authorization: `Bearer ${view_token}` } });
+
+                if (api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
+                    console.log('We are inside not valid AT realm');
+                    const persistence = new AppPersistence(persis, read.getPersistenceReader());
+                    view_token = await refresh_access_token(view_refresh, read, http, modify, context, persis);
+                    console.log('This is the new token from the function:', view_token);
+                    api_response = await http.get(url, { headers: { Authorization: `Bearer ${view_token}` } });
+                }
 
                 for (let i = 0; i < api_response.data.items.length; i++) {
                     await displayevents(api_response.data.items[i], modify, context);
-
                 }
-
                 break;
 
             case (Command.make):
 
-                const access_token = await persistence.get_access_token(context.getSender());
+                let access_token = await persistence.get_access_token(context.getSender());
+                const create_refresh = await persistence.get_refresh_token_user(context.getSender());
                 const params = context.getArguments().join(' ');
                 const array = params.split("\"");
                 const create_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}`;
@@ -123,13 +132,19 @@ export class GCGetter {
                 const e_date = array[3] + 'T' + array[7];
                 const end_date = new Date(e_date);
                 const end_datetime = end_date.toISOString();
-                const create_api_response = await http.post(create_url, { headers: { 'Authorization': `Bearer ${access_token}`, }, data: { 'summary': `${array[1]}`, 'end': { 'dateTime': `${end_datetime}`, }, 'start': { 'dateTime': `${start_datetime}` } } });
+                let create_api_response = await http.post(create_url, { headers: { 'Authorization': `Bearer ${access_token}`, }, data: { 'summary': `${array[1]}`, 'end': { 'dateTime': `${end_datetime}`, }, 'start': { 'dateTime': `${start_datetime}` } } });
+
+                if (create_api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
+                    const persistence = new AppPersistence(persis, read.getPersistenceReader());
+                    access_token = await refresh_access_token(create_refresh, read, http, modify, context, persis);
+                    create_api_response = await http.post(create_url, { headers: { 'Authorization': `Bearer ${access_token}`, }, data: { 'summary': `${array[1]}`, 'end': { 'dateTime': `${end_datetime}`, }, 'start': { 'dateTime': `${start_datetime}` } } });
+                }
+
                 if (create_api_response.statusCode == HttpStatusCode.OK && create_api_response.data.status == "confirmed") {
                     try {
                         message.addAttachment({
 
                             text: `Event has been created. Find the event at [${create_api_response.data.summary}](${create_api_response.data.htmlLink}) `,
-
 
                         });
                         await modify.getCreator().finish(message);
@@ -159,11 +174,16 @@ export class GCGetter {
 
                 const title = context.getArguments().join(' ');
                 const title_new = title.split('\"');
-                const token = await persistence.get_access_token(context.getSender());
+                let token = await persistence.get_access_token(context.getSender());
+                const quick_refresh = await persistence.get_refresh_token_user(context.getSender());
                 const quick_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events/quickAdd?key=${api_key}&text=${title_new[1]}`;
-                const quick_api_response = await http.post(quick_url, { headers: { Authorization: `Bearer ${token}`, } });
+                let quick_api_response = await http.post(quick_url, { headers: { Authorization: `Bearer ${token}` } });
+                if (quick_api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
+                    token = await refresh_access_token(quick_refresh, read, http, modify, context, persis);
+                    quick_api_response = await http.post(quick_url, { headers: { Authorization: `Bearer ${token}` } });
+                }
+
                 if (quick_api_response && quick_api_response.statusCode === HttpStatusCode.OK) {
-                    // const msg = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
                     message.setText('Quickadd event succcessfully created!');
                     await modify.getCreator().finish(message);
                 }
@@ -171,10 +191,17 @@ export class GCGetter {
 
             case (Command.calendar):
 
-                const list_token = await persistence.get_access_token(context.getSender());
+                let list_token = await persistence.get_access_token(context.getSender());
+                const list_refresh = await persistence.get_refresh_token_user(context.getSender());
                 const list_url = `https://www.googleapis.com/calendar/v3/users/me/calendarList?key=${api_key}`;
-                const list_api_response = await http.get(list_url, { headers: { Authorization: `Bearer ${list_token}`, } });
+                let list_api_response = await http.get(list_url, { headers: { Authorization: `Bearer ${list_token}`, } });
                 let current_calendar = await persistence.get_preferred_calendar_id(context.getSender());
+
+                if (list_api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
+                    list_token = await refresh_access_token(quick_refresh, read, http, modify, context, persis);
+                    list_api_response = await http.get(list_url, { headers: { Authorization: `Bearer ${list_token}`, } });
+                }
+
                 (list_api_response.data.items as Array<any>).forEach((value) => {
 
                     if (current_calendar == value.id || value.primary && current_calendar == undefined) {
@@ -208,14 +235,14 @@ export class GCGetter {
             case (Command.public):
 
                 const user_id = await read.getRoomReader().getMembers(context.getRoom().id);
-                let email_ids: Array<any> = user_id;
+                let email_ids: Array<any> = [];
                 let mapping: Array<any> = [];
 
                 for (let index = 0; index < user_id.length; index++) {
                     email_ids[index] = user_id[index].emails[0].address;
                 }
                 await modify.getCreator().finish(message);
-                const invite_token = await persistence.get_access_token(context.getSender());
+                let invite_token = await persistence.get_access_token(context.getSender());
                 const invite_parameters = context.getArguments().join(' ');
                 const invite_array = invite_parameters.split("\"");
                 const invite_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&sendUpdates=all`;
@@ -230,7 +257,12 @@ export class GCGetter {
                 for (let index = 0; index < email_ids.length; index++) {
                     mapping.push({ email: email_ids[index] });
                 }
-                const invite_api_response = await http.post(invite_url, { headers: { Authorization: `Bearer ${invite_token}`, }, data: { 'summary': `${invite_array[1]}`, 'end': { 'dateTime': `${invite_end_datetime}`, }, 'attendees': mapping, 'start': { 'dateTime': `${invitestart_datetime}` }, } });
+                let invite_api_response = await http.post(invite_url, { headers: { Authorization: `Bearer ${invite_token}`, }, data: { 'summary': `${invite_array[1]}`, 'end': { 'dateTime': `${invite_end_datetime}`, }, 'attendees': mapping, 'start': { 'dateTime': `${invitestart_datetime}` }, } });
+
+                if (invite_api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
+                    invite_token = await refresh_access_token(quick_refresh, read, http, modify, context, persis);
+                    invite_api_response = await http.post(invite_url, { headers: { Authorization: `Bearer ${invite_token}`, }, data: { 'summary': `${invite_array[1]}`, 'end': { 'dateTime': `${invite_end_datetime}`, }, 'attendees': mapping, 'start': { 'dateTime': `${invitestart_datetime}` }, } });
+                }
                 if (invite_api_response.statusCode === HttpStatusCode.OK && invite_api_response.data.status === 'confirmed') {
                     try {
                         message.addAttachment({
@@ -249,7 +281,6 @@ export class GCGetter {
                         message.addAttachment({
 
                             text: `Event could not be created. It encountered the error: ${invite_api_response.data.error.message}. Please try again. `,
-
 
                         });
                         await modify.getCreator().finish(message);

@@ -29,4 +29,3 @@ export class GCCommand implements ISlashCommand {
 
   }
 }
-
