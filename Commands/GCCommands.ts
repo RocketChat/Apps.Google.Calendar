@@ -1,12 +1,9 @@
 import { IHttp, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { GoogleCalendarApp } from '../GoogleCalendar';
-import { GCGetter } from '../helpers/GSGetter';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
 import { AppPersistence } from '../helpers/persistence';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
-
-
 
 export class GCCommand implements ISlashCommand {
 
@@ -26,15 +23,8 @@ export class GCCommand implements ISlashCommand {
 
 
       const login_status = await this.app.getGCGetter().login(this.app.getLogger(), read, http, modify, context, persis);
-
-      msg.setText('Slashcommand executed');
-      // await modify.getCreator().finish(msg);
-      modify.getNotifier().notifyUser(context.getSender(), msg.getMessage());
-
-
     } catch (e) {
-      this.app.getLogger().error('Failed sending login url', e);
-      //msg.setText('An error occurred when trying to send the login url:disappointed_relieved:');
+      this.app.getLogger().error('Failed executing slashcommand', e);
     }
 
   }
