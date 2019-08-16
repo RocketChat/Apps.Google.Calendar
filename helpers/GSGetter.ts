@@ -240,6 +240,7 @@ export class GCGetter {
                     email_ids[index] = user_id[index].emails[0].address;
                 }
                 await modify.getCreator().finish(message);
+
                 let invite_token = await persistence.get_access_token(context.getSender());
                 const invite_parameters = context.getArguments().join(' ');
                 const invite_array = invite_parameters.split("\"");
@@ -261,6 +262,7 @@ export class GCGetter {
                     invite_token = await refresh_access_token(quick_refresh, read, http, modify, context, persis);
                     invite_api_response = await http.post(invite_url, { headers: { Authorization: `Bearer ${invite_token}`, }, data: { 'summary': `${invite_array[1]}`, 'end': { 'dateTime': `${invite_end_datetime}`, }, 'attendees': mapping, 'start': { 'dateTime': `${invitestart_datetime}` }, } });
                 }
+
                 if (invite_api_response.statusCode === HttpStatusCode.OK && invite_api_response.data.status === 'confirmed') {
                     try {
                         message.addAttachment({
