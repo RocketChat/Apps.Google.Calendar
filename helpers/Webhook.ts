@@ -3,6 +3,7 @@ import { HttpStatusCode, IHttp, ILogger, IModify, IPersistence, IRead } from '@r
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
 import { GCResults } from '../helpers/GCResult';
 import { AppPersistence } from '../helpers/persistence';
+import { get_refresh_token, get_access_token } from '../helpers/result';
 
 export class WebhookEndpoint extends ApiEndpoint {
     public path = 'webhook';
@@ -25,14 +26,15 @@ export class WebhookEndpoint extends ApiEndpoint {
         }
 
         console.log('This is the response from post api', new_response);
-        const acess_token = new GCResults(new_response.data);
-        // logger.debug('Auth token received is: ', auth_code);
-        const atoken = acess_token;
+        const access_token = await get_access_token(new_response);
+        console.log('This is accesstoken from new function inside webhook:', access_token);
         const persistence = new AppPersistence(persist, read.getPersistenceReader());
         const user_id = await persistence.getuid(client_id);
-        const id = await persistence.connect_user_to_token(acess_token, user_id);
+        const id = await persistence.connect_user_to_token(access_token, user_id);
+        const refresh_token = await get_refresh_token(new_response);
+        const new_id = await persistence.connect_user_to_refresh_token(refresh_token, user_id);
 
-        if (acess_token) {
+        if (access_token) {
             return this.success('<html><body><script type="text/javascript"></script><div>Sign-in successful! Please close this window/tab and continue using!</div></body></html>');
         } else {
             throw new Error('Sign-in not successful');
@@ -40,4 +42,3 @@ export class WebhookEndpoint extends ApiEndpoint {
     }
 
 }
-
