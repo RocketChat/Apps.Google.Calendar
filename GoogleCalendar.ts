@@ -22,7 +22,6 @@ export class GoogleCalendarApp extends App {
     constructor(info: IAppInfo, logger: ILogger, accessors: IAppAccessors) {
         super(info, logger, accessors);
         this.gcGetter = new GCGetter();
-        //this.webhook= new WebhookEndpoint(this);
 
     }
     public getGCGetter(): GCGetter {
@@ -80,7 +79,6 @@ export class GoogleCalendarApp extends App {
             i18nLabel: 'Customize_Redirect_uri',
             i18nDescription: 'Customize_Redirect_URI',
         });
-
 
         await configuration.slashCommands.provideSlashCommand(new GCCommand(this));
 
