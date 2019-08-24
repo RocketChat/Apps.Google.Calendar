@@ -21,20 +21,35 @@ Integrates google calendar with your Rocket.Chat server.
 
 ## Quick Start Guide
 
+### Getting Google API Credentials
+
+* To use this app, you need to get API credentials such as Client ID, Secret Key and API key and put these inside your Google Calendar App settings in local rocket.chat server.
+* To get these credentials, login to your account at [Google API Console](https://console.developers.google.com).
+* Once you login, it will prompt you to select your country and accept terms and conditions if you are logging in for the first time.
+* Next, Create a new project and go to **Credentials**. In **Credentials** page select your newly created project.
+* Click on the button **Create Credentials**, you will get a warning reqiuring you to complete **OAuth Consent Screen**, complete that filling in a name.
+* Once OAuth consent screen is completed, on credentials screen, Select **Web Application** in **Application Type**.
+* In the field **Authorised redirect URIs**, fill in the site URL. You get site URL by going to your local rocket.chat server, go to **Options** -> **Settings** -> **General**. See the URL under the name of **Site URL**.
+* Add another redirect URI from app settings. Go to **Administration** -> **Apps** -> **Google Calendar**. Copy the URL inside **Get Webhook** which is of the form of *curl -X GET http://localhost:3000/api/apps/.../webhook*. Remove **curl -X GET** from the URL and paste it in **redirect URI**.
+* After completing this much, you are going to have **Client ID** and **Client Secret**. Please note these down somewhere safe and do not share it with public.
+* Now that we have Client ID and Client Secret, only thing we need is API Key. 
+* On the Credentials screen, click on the **Create Credentials** and select **API Key**. This will create the API key.
+* This is all folks! Put these credentials in your Google Calendar API settings and start using the app!
+
+This is an example image of the **Get Webhook** URL inside App Settings : 
+![Get Webhook setting](https://user-images.githubusercontent.com/22879639/63290311-d266ee00-c2de-11e9-991c-fb5aaa311344.png "App Settings for Webhook URL")
+
+These are the app settings where Google API Credentials should be entered : 
+![Google API settings](https://user-images.githubusercontent.com/22879639/63566840-424dd080-c58c-11e9-9da9-178fb0fad025.png)
+
 #### Useful Slashcommands
 * `/calendar auth` : To authenticate to your gmail account. 
 
-* `/calendar view` : Once the authentication is successful, you can use this command to view the private events on your calendar. Events will be displayed with title, date, start time and end time. You will also get the link, which you can click on and it will take directly to your calendar where you can udpate or delete that event.
-
-* `/calendar create "Title" "Date" "Start time" "Endtime"` : This command can be used to create a private on your primary calendar, where Title is the title of the event you are creating, and date should be in format YYYY-MM-DD and time in 24 hours format.
-
 * `/calendar logout` : Once you are done with viewing, creating your calendar events and wants to log out of the gmail account, use this command and it will log you out and redirect to your home page.
 
 * `/calendar view` : Once the authentication is successful, you can use this command to view the private events on your calendar. Events will be displayed with title, date, start time and end time. You will also get the link, which you can click on and it will take directly to your calendar where you can udpate or delete that event.
 
 * `/calendar create "Title" "Date" "Start time" "Endtime"` : This command can be used to create a private on your primary calendar, where Title is the title of the event you are creating, and date should be in format YYYY-MM-DD and time in 24 hours format.
-
-* `/calendar logout` : Once you are done with viewing, creating your calendar events and wants to log out of the gmail account, use this command and it will log you out and redirect to your home page.
 
 * `/calendar quickadd {title of the event}` - This slashcommand can be used to create an event starting from time the slashcommand is called to one hour in duration.
 
@@ -42,6 +57,10 @@ Integrates google calendar with your Rocket.Chat server.
 
 * `/calendar invite "Title" "Date" "Starttime" "Endtime" ` - This slashcommand will create public events which will include inviting all the users present inside the room (in which command is called) to this event. All the users will receive the event invite through e-mails. They can respond to that invite and the organizer will receive their response notifications via e-mails.
 
+##### Demo for Commands
+
+Click on the image to see the demo for above mentioned commands. Link will take you to youtube demo video.
+[![Demo for Calendar App](https://img.youtube.com/vi/s7_UIrW29AI/0.jpg)](https://www.youtube.com/watch?v=s7_UIrW29AI) 
 
 ### Feedback and Suggestions
 Contribute to this repository by opening an issue if you have any feedback or suggestions for improvements or even some feature request!
