@@ -2,6 +2,8 @@
 
 Integrates google calendar with your Rocket.Chat server.
 
+* **This project is for [Google Summer of Code 2019](https://summerofcode.withgoogle.com/)**.
+
 #### Features :
 * Authenticate to your gmail account from inside your Rocket.Chat.
 * Create your private events in your google calendar fom your Rocket.Chat using just a slashcommand.
@@ -37,10 +39,10 @@ Integrates google calendar with your Rocket.Chat server.
 * This is all folks! Put these credentials in your Google Calendar API settings and start using the app!
 
 This is an example image of the **Get Webhook** URL inside App Settings : 
-![Get Webhook setting](https://user-images.githubusercontent.com/22879639/63290311-d266ee00-c2de-11e9-991c-fb5aaa311344.png "App Settings for Webhook URL")
+![Get Webhook setting](https://github.com/RocketChat/Apps.Google.Calendar/blob/Fix_1/Images/pic%202.png "App Settings for Webhook URL")
 
 These are the app settings where Google API Credentials should be entered : 
-![Google API settings](https://user-images.githubusercontent.com/22879639/63566840-424dd080-c58c-11e9-9da9-178fb0fad025.png)
+![Google API settings](https://github.com/RocketChat/Apps.Google.Calendar/blob/Fix_1/Images/pic1.png)
 
 #### Useful Slashcommands
 * `/calendar auth` : To authenticate to your gmail account. 
