@@ -65,6 +65,23 @@ Click on the image to see the demo for above mentioned commands. Link will take 
 
 [![Demo for Calendar App](https://img.youtube.com/vi/s7_UIrW29AI/0.jpg)](https://www.youtube.com/watch?v=s7_UIrW29AI) 
 
+#### Handling Errors
+
+Anytime the app is not behaving as expected or commands not working, try these 2 things - 
+
+* First, check the format of the command and make sure the format is correct (for eg. create command).
+* Try logging in again, by first logging out using `/calendar logout` command and again authenticating.
+
+**If after trying these 2 methods, commands still dont work, raise an issue in the repository, explaining the current behaviour, things you have tried.**
+
+### Wanna improve the Calendar Integration?
+
+Many of the importatnt features provided by Google Calendar API are implemented in this app, but still improvements are always possible. To contribute, you can do any of these things - 
+
+* Solve issues in the repository.
+* Soon Rocket.Chat app engine is going to be powerful enough to facilitate UI changes. Once that happens, the same functionalities can be made easier for users using UI buttons.
+* If you have a feature in mind and can't find anything about it, raise an issue and let's discuss it!
+
 ### Feedback and Suggestions
 Contribute to this repository by opening an issue if you have any feedback or suggestions for improvements or even some feature request!
 
