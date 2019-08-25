@@ -62,6 +62,7 @@ These are the app settings where Google API Credentials should be entered :
 ##### Demo for Commands
 
 Click on the image to see the demo for above mentioned commands. Link will take you to youtube demo video.
+
 [![Demo for Calendar App](https://img.youtube.com/vi/s7_UIrW29AI/0.jpg)](https://www.youtube.com/watch?v=s7_UIrW29AI) 
 
 ### Feedback and Suggestions
