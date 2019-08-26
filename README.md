@@ -13,6 +13,7 @@
     <a href="#quick-start-guide">Quick Start</a> &bull;
     <a href="#demo-for-commands">Demo</a>
 </p>
+
 ---
 
 Integrates google calendar with your Rocket.Chat server.
