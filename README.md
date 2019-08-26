@@ -1,10 +1,10 @@
 # Google Calendar Integration for Rocket.Chat
 
-[![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/RocketChat/Apps.Google.Calendar/LICENSE)
+[![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/RocketChat/Apps.Google.Calendar/blob/master/LICENSE)
 [![Contact :Rocket.Chat](https://img.shields.io/badge/contact-Rocket.Chat-blue.svg?style=flat)](https://rocket.chat/)
 [![GitHub stars](https://img.shields.io/github/stars/RocketChat/Apps.Google.Calendar.svg)](https://github.com/RocketChat/Apps.Google.Calendar/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/RocketChat/Apps.Google.Calendar.svg)](https://github.com/RocketChat/Apps.Google.Calendar/network)
-[![GitHub issues](https://img.shields.io/github/issues/RocketChat/Apps.Google.Calendar.svg)](https://github.com/RcoketChat/Apps.Google.Calendar/issues)
+[![GitHub forks](https://img.shields.io/github/forks/RocketChat/Apps.Google.Calendar.svg)](https://github.com/RocketChat/Apps.Google.Calendar/network/members)
+[![GitHub issues](https://img.shields.io/github/issues/RocketChat/Apps.Google.Calendar.svg)](https://github.com/RocketChat/Apps.Google.Calendar/issues)
 
 ---
 <p align="center">
