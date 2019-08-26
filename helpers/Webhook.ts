@@ -1,7 +1,6 @@
 
 import { HttpStatusCode, IHttp, ILogger, IModify, IPersistence, IRead } from '@rocket.chat/apps-engine/definition/accessors';
 import { ApiEndpoint, IApiEndpointInfo, IApiRequest, IApiResponse } from '@rocket.chat/apps-engine/definition/api';
-import { GCResults } from '../helpers/GCResult';
 import { AppPersistence } from '../helpers/persistence';
 import { get_refresh_token, get_access_token } from '../helpers/result';
 

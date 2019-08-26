@@ -45,7 +45,9 @@ export class GCGetter {
         switch (parameter) {
 
             case (Command.connect):
-                const response = (`${this.urli}client_id=${client_id}&redirect_uri=${redirect}/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook&scope=${this.SCOPES}&prompt=consent&access_type=offline&response_type=code`);
+                const full_url = redirect + '/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook';
+
+                const response = (`${this.urli}client_id=${client_id}&redirect_uri=${full_url}&scope=${this.SCOPES}&prompt=consent&access_type=offline&response_type=code`);
 
 
                 try {
@@ -70,34 +72,34 @@ export class GCGetter {
                 break;
 
             case (Command.lgout):
-                const logresponse = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=${redirect}`;
 
-                try {
-                    message.addAttachment({
-                        text: 'Click the button to logout your Gmail account.',
-                        actions: [{
-                            type: MessageActionType.BUTTON,
-                            text: 'Logout',
-                            msg_in_chat_window: false,
-                            url: `${logresponse}`,
-                        }],
-                    });
-                    await modify.getCreator().finish(message);
-                } catch (e) {
-                    this.app.getLogger().error('Failed sending logout url', e);
-                    message.setText('An error occurred when trying to send the logout url:disappointed_relieved:');
+                const logout_url = 'https://accounts.google.com/o/oauth2/revoke';
+                const revoke_token = await persistence.get_access_token(context.getSender());
+                const logout_response = await http.get(`${logout_url}?token=${revoke_token}`);
+                if (logout_response.statusCode == HttpStatusCode.OK) {
+                    try {
+                        message.addAttachment({
 
-                    modify.getNotifier().notifyUser(context.getSender(), message.getMessage());
+                            text: `Rocket.Chat has been logged out of your Gmail account. Login again using "/calendar auth" to use the commands.`,
+
+                        });
+                        await modify.getCreator().finish(message);
+                    } catch (e) {
+                        this.app.getLogger().error('Failed revoking access token', e);
+                        message.setText('An error occurred when revoking the access token:');
+                    }
+                    const persistence = new AppPersistence(persis, read.getPersistenceReader());
+                    const user_association = new RocketChatAssociationRecord(RocketChatAssociationModel.USER, users_id);
+                    const access = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'access token');
+                    const refresh = new RocketChatAssociationRecord(RocketChatAssociationModel.MISC, 'refresh token');
+                    await persis.removeByAssociations([user_association, access]);
+                    await persis.removeByAssociations([user_association, refresh]);
 
                 }
-
-                const atoken = await persistence.get_access_token(context.getSender());
-
                 break;
 
             case (Command.show):
                 let view_token = await persistence.get_access_token(context.getSender());
-                console.log('This is accesstoken before call fail:', view_token);
                 const view_refresh = await persistence.get_refresh_token_user(context.getSender());
 
                 const dat = new Date();
@@ -106,10 +108,8 @@ export class GCGetter {
                 let api_response = await http.get(url, { headers: { Authorization: `Bearer ${view_token}` } });
 
                 if (api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
-                    console.log('We are inside not valid AT realm');
                     const persistence = new AppPersistence(persis, read.getPersistenceReader());
                     view_token = await refresh_access_token(view_refresh, read, http, modify, context, persis);
-                    console.log('This is the new token from the function:', view_token);
                     api_response = await http.get(url, { headers: { Authorization: `Bearer ${view_token}` } });
                 }
 
@@ -132,12 +132,28 @@ export class GCGetter {
                 const e_date = array[3] + 'T' + array[7];
                 const end_date = new Date(e_date);
                 const end_datetime = end_date.toISOString();
-                let create_api_response = await http.post(create_url, { headers: { 'Authorization': `Bearer ${access_token}`, }, data: { 'summary': `${array[1]}`, 'end': { 'dateTime': `${end_datetime}`, }, 'start': { 'dateTime': `${start_datetime}` } } });
+                let create_api_response = await http.post(create_url,
+                    {
+                        headers: { 'Authorization': `Bearer ${access_token}`, },
+                        data: {
+                            'summary': `${array[1]}`,
+                            'end': { 'dateTime': `${end_datetime}`, },
+                            'start': { 'dateTime': `${start_datetime}` }
+                        }
+                    });
 
                 if (create_api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
                     const persistence = new AppPersistence(persis, read.getPersistenceReader());
                     access_token = await refresh_access_token(create_refresh, read, http, modify, context, persis);
-                    create_api_response = await http.post(create_url, { headers: { 'Authorization': `Bearer ${access_token}`, }, data: { 'summary': `${array[1]}`, 'end': { 'dateTime': `${end_datetime}`, }, 'start': { 'dateTime': `${start_datetime}` } } });
+                    create_api_response = await http.post(create_url,
+                        {
+                            headers: { 'Authorization': `Bearer ${access_token}`, },
+                            data: {
+                                'summary': `${array[1]}`,
+                                'end': { 'dateTime': `${end_datetime}`, },
+                                'start': { 'dateTime': `${start_datetime}` }
+                            }
+                        });
                 }
 
                 if (create_api_response.statusCode == HttpStatusCode.OK && create_api_response.data.status == "confirmed") {
@@ -234,12 +250,12 @@ export class GCGetter {
 
             case (Command.public):
 
-                const user_id = await read.getRoomReader().getMembers(context.getRoom().id);
+                const all_users_id = await read.getRoomReader().getMembers(context.getRoom().id);
                 let email_ids: Array<any> = [];
                 let mapping: Array<any> = [];
 
-                for (let index = 0; index < user_id.length; index++) {
-                    email_ids[index] = user_id[index].emails[0].address;
+                for (let index = 0; index < all_users_id.length; index++) {
+                    email_ids[index] = all_users_id[index].emails[0].address;
                 }
                 await modify.getCreator().finish(message);
                 let invite_token = await persistence.get_access_token(context.getSender());
@@ -257,11 +273,29 @@ export class GCGetter {
                 for (let index = 0; index < email_ids.length; index++) {
                     mapping.push({ email: email_ids[index] });
                 }
-                let invite_api_response = await http.post(invite_url, { headers: { Authorization: `Bearer ${invite_token}`, }, data: { 'summary': `${invite_array[1]}`, 'end': { 'dateTime': `${invite_end_datetime}`, }, 'attendees': mapping, 'start': { 'dateTime': `${invitestart_datetime}` }, } });
+                let invite_api_response = await http.post(invite_url,
+                    {
+                        headers: { Authorization: `Bearer ${invite_token}` },
+                        data: {
+                            'summary': `${invite_array[1]}`,
+                            'end': { 'dateTime': `${invite_end_datetime}`, },
+                            'attendees': mapping,
+                            'start': { 'dateTime': `${invitestart_datetime}` }
+                        }
+                    });
 
                 if (invite_api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
                     invite_token = await refresh_access_token(quick_refresh, read, http, modify, context, persis);
-                    invite_api_response = await http.post(invite_url, { headers: { Authorization: `Bearer ${invite_token}`, }, data: { 'summary': `${invite_array[1]}`, 'end': { 'dateTime': `${invite_end_datetime}`, }, 'attendees': mapping, 'start': { 'dateTime': `${invitestart_datetime}` }, } });
+                    invite_api_response = await http.post(invite_url,
+                        {
+                            headers: { Authorization: `Bearer ${invite_token}`, },
+                            data: {
+                                'summary': `${invite_array[1]}`,
+                                'end': { 'dateTime': `${invite_end_datetime}`, },
+                                'attendees': mapping,
+                                'start': { 'dateTime': `${invitestart_datetime}` },
+                            }
+                        });
                 }
                 if (invite_api_response.statusCode === HttpStatusCode.OK && invite_api_response.data.status === 'confirmed') {
                     try {
