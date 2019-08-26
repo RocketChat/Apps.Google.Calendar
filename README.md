@@ -2,7 +2,7 @@
 
 Integrates google calendar with your Rocket.Chat server.
 
-* **This project is for [Google Summer of Code 2019](https://summerofcode.withgoogle.com/)**.
+* **This project has been developed as part of the [Google Summer of Code 2019](https://summerofcode.withgoogle.com/) program**.
 
 #### Features :
 * Authenticate to your gmail account from inside your Rocket.Chat.
@@ -74,7 +74,7 @@ Anytime the app is not behaving as expected or commands not working, try these 2
 
 **If after trying these 2 methods, commands still dont work, raise an issue in the repository, explaining the current behaviour, things you have tried.**
 
-### Wanna improve the Calendar Integration?
+### Want to improve the Google Calendar app?
 
 Many of the importatnt features provided by Google Calendar API are implemented in this app, but still improvements are always possible. To contribute, you can do any of these things - 
 

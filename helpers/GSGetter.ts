@@ -76,7 +76,6 @@ export class GCGetter {
                 const logout_url = 'https://accounts.google.com/o/oauth2/revoke';
                 const revoke_token = await persistence.get_access_token(context.getSender());
                 const logout_response = await http.get(`${logout_url}?token=${revoke_token}`);
-                console.log('This is revoke token response:', logout_response);
                 if (logout_response.statusCode == HttpStatusCode.OK) {
                     try {
                         message.addAttachment({
