@@ -1,10 +1,25 @@
 # Google Calendar Integration for Rocket.Chat
 
+[![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/RocketChat/Apps.Google.Calendar/LICENSE)
+[![Contact :Rocket.Chat](https://img.shields.io/badge/contact-Rocket.Chat-blue.svg?style=flat)](https://rocket.chat/)
+[![GitHub stars](https://img.shields.io/github/stars/RocketChat/Apps.Google.Calendar.svg)](https://github.com/RocketChat/Apps.Google.Calendar/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/RocketChat/Apps.Google.Calendar.svg)](https://github.com/RocketChat/Apps.Google.Calendar/network)
+[![GitHub issues](https://img.shields.io/github/issues/RocketChat/Apps.Google.Calendar.svg)](https://github.com/RcoketChat/Apps.Google.Calendar/issues)
+
+---
+<p align="center">
+    <a href="#features">Features</a> &bull;
+    <a href="#how-to-use-it">Use it</a> &bull;
+    <a href="#quick-start-guide">Quick Start</a> &bull;
+    <a href="#demo-for-commands">Demo</a>
+</p>
+---
+
 Integrates google calendar with your Rocket.Chat server.
 
 * **This project has been developed as part of the [Google Summer of Code 2019](https://summerofcode.withgoogle.com/) program**.
 
-#### Features :
+## Features 
 * Authenticate to your gmail account from inside your Rocket.Chat.
 * Create your private events in your google calendar fom your Rocket.Chat using just a slashcommand.
 * View and update your private events using just a slashcommand.
@@ -13,7 +28,7 @@ Integrates google calendar with your Rocket.Chat server.
 * Get reminders and notifications of events.
 * Create public events inside a room inviting all the users inside the room.
 
-## How to use it? 
+## How to use it
 * Download or clone the repository to your local system.
 * Get your local Rocket.Chat server running.
 * Navigate inside the folder using terminal.
@@ -23,7 +38,7 @@ Integrates google calendar with your Rocket.Chat server.
 
 ## Quick Start Guide
 
-### Getting Google API Credentials
+## Getting Google API Credentials
 
 * To use this app, you need to get API credentials such as Client ID, Secret Key and API key and put these inside your Google Calendar App settings in local rocket.chat server.
 * To get these credentials, login to your account at [Google API Console](https://console.developers.google.com).
@@ -44,7 +59,7 @@ This is an example image of the **Get Webhook** URL inside App Settings :
 These are the app settings where Google API Credentials should be entered : 
 ![Google API settings](https://github.com/RocketChat/Apps.Google.Calendar/blob/Fix_1/Images/Pic1.png)
 
-#### Useful Slashcommands
+## Useful Slashcommands
 * `/calendar auth` : To authenticate to your gmail account. 
 
 * `/calendar logout` : Once you are done with viewing, creating your calendar events and wants to log out of the gmail account, use this command and it will log you out and redirect to your home page.
@@ -59,13 +74,13 @@ These are the app settings where Google API Credentials should be entered :
 
 * `/calendar invite "Title" "Date" "Starttime" "Endtime" ` - This slashcommand will create public events which will include inviting all the users present inside the room (in which command is called) to this event. All the users will receive the event invite through e-mails. They can respond to that invite and the organizer will receive their response notifications via e-mails.
 
-##### Demo for Commands
+## Demo for Commands
 
 Click on the image to see the demo for above mentioned commands. Link will take you to youtube demo video.
 
 [![Demo for Calendar App](https://img.youtube.com/vi/s7_UIrW29AI/0.jpg)](https://www.youtube.com/watch?v=s7_UIrW29AI) 
 
-#### Handling Errors
+## Handling Errors
 
 Anytime the app is not behaving as expected or commands not working, try these 2 things - 
 
@@ -74,7 +89,7 @@ Anytime the app is not behaving as expected or commands not working, try these 2
 
 **If after trying these 2 methods, commands still dont work, raise an issue in the repository, explaining the current behaviour, things you have tried.**
 
-### Want to improve the Google Calendar app?
+## Want to improve the Google Calendar app?
 
 Many of the importatnt features provided by Google Calendar API are implemented in this app, but still improvements are always possible. To contribute, you can do any of these things - 
 
@@ -82,7 +97,7 @@ Many of the importatnt features provided by Google Calendar API are implemented 
 * Soon Rocket.Chat app engine is going to be powerful enough to facilitate UI changes. Once that happens, the same functionalities can be made easier for users using UI buttons.
 * If you have a feature in mind and can't find anything about it, raise an issue and let's discuss it!
 
-### Feedback and Suggestions
+## Feedback and Suggestions
 Contribute to this repository by opening an issue if you have any feedback or suggestions for improvements or even some feature request!
 
 
