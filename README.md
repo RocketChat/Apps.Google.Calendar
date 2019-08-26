@@ -9,7 +9,7 @@
 ---
 <p align="center">
     <a href="#features">Features</a> &bull;
-    <a href="#how-to-use-it">Use it</a> &bull;
+    <a href="#how-to-use-it">Install</a> &bull;
     <a href="#quick-start-guide">Quick Start</a> &bull;
     <a href="#demo-for-commands">Demo</a>
 </p>
