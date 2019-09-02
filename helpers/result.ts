@@ -2,7 +2,7 @@ import { IModify, IRead, IHttp, HttpStatusCode, IPersistence } from '@rocket.cha
 import { SlashCommandContext, ISlashCommand } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { AppPersistence } from '../helpers/persistence';
 
-export async function displayevents(result: any, modify: IModify, context: SlashCommandContext): Promise<void> {
+export async function displayevents(result: any, modify: IModify, context: SlashCommandContext, time: any): Promise<void> {
 
     const summary = result.summary as string;
     const start_time = result.start.dateTime as string;
@@ -21,21 +21,15 @@ export async function displayevents(result: any, modify: IModify, context: Slash
     const date_new = short_cut_date.getDate();
     const hours_end = short_cut_date.getHours();
     const minutes_end = short_cut_date.getMinutes();
-    let timezone = start_time.split('+', 2);
-    let sign;
-    if (timezone) {
-        sign = '+';
-    } else {
-        timezone = start_time.split('-', 2);
-        sign = '-';
-    }
+    let timezone = time;
+    
     const builder = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
     try {
         builder.addAttachment({
             title: {
                 value: summary,
             },
-            text: `is a due event on your calendar starting from date ${date_start}/${start_month}/${start_year} at ${start_hours}:${start_minutes}(UTC ${sign}${timezone[1]}) to ${date_new}/${month_new}/${[year_new]} at ${hours_end}:${minutes_end} (UTC ${sign}${timezone[1]}). [Find and manage the event here](${result.htmlLink}) `,
+            text: `is a due event on your calendar starting from date ${date_start}/${start_month}/${start_year} at ${start_hours}:${start_minutes}(${timezone}) to ${date_new}/${month_new}/${[year_new]} at ${hours_end}:${minutes_end} (${timezone}). [Find and manage the event here](${result.htmlLink}) `,
         });
         await modify.getCreator().finish(builder);
     } catch (e) {
@@ -64,7 +58,6 @@ export async function refresh_access_token(token: string, read: IRead, http: IHt
     const message = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
 
     const refresh_response = await http.post(url);
-    console.log('This is respones from new ref token inside refresh acc-token function:', refresh_response);
     if (refresh_response.statusCode == HttpStatusCode.OK) {
         const access_token = refresh_response.data.access_token;
         const persistence = new AppPersistence(persis, read.getPersistenceReader());

@@ -106,15 +106,15 @@ export class GCGetter {
                 const minimum_date = dat.toISOString();
                 const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&showDeleted=false&timeMin=${minimum_date}`;
                 let api_response = await http.get(url, { headers: { Authorization: `Bearer ${view_token}` } });
-
+                console.log('This is the view api response:', api_response);
                 if (api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
                     const persistence = new AppPersistence(persis, read.getPersistenceReader());
                     view_token = await refresh_access_token(view_refresh, read, http, modify, context, persis);
                     api_response = await http.get(url, { headers: { Authorization: `Bearer ${view_token}` } });
                 }
-
+                let timezone = api_response.data.timeZone;
                 for (let i = 0; i < api_response.data.items.length; i++) {
-                    await displayevents(api_response.data.items[i], modify, context);
+                    await displayevents(api_response.data.items[i], modify, context, timezone);
                 }
                 break;
 
@@ -126,19 +126,49 @@ export class GCGetter {
                 const array = params.split("\"");
                 const create_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}`;
 
-                const datetime = array[3] + 'T' + array[5];
-                const date = new Date(datetime);
-                const start_datetime = date.toISOString();
-                const e_date = array[3] + 'T' + array[7];
+                const datetime = array[3] + 'T' + array[5] + 'Z';
+                const new_date = new Date(datetime);
+                const start_datetime = new_date.toISOString();
+                const datetime_ms = start_datetime.split(".");
+
+                const e_date = array[3] + 'T' + array[7] + 'Z';
                 const end_date = new Date(e_date);
                 const end_datetime = end_date.toISOString();
+                const end_time_ms = end_datetime.split(".");
+                const user_info = await read.getUserReader().getById(users_id);
+
+                let start_time;
+                let end_time;
+                let utc = user_info.utcOffset;
+                let decimal = Math.abs(utc - Math.floor(utc));
+                decimal = decimal * 60;
+                if (utc > 0) {
+                    utc = utc - (decimal / 60);
+                }
+                if (utc < 0) {
+                    utc = utc + (decimal / 60);
+                }
+
+                if (utc > 0 && utc < 10) {
+                    start_time = datetime_ms[0] + '+0' + utc + ':' + decimal;
+                    end_time = end_time_ms[0] + '+0' + utc + ':' + decimal;
+                } else if (utc >= 10) {
+                    start_time = datetime_ms[0] + '+' + utc + ':' + decimal;
+                    end_time = end_time_ms[0] + '+' + utc + ':' + decimal;
+
+                } else {
+                    start_time = datetime_ms[0] + utc + ':' + decimal;
+                    end_time = end_time_ms[0] + utc + ':' + decimal;
+
+                }
+
                 let create_api_response = await http.post(create_url,
                     {
                         headers: { 'Authorization': `Bearer ${access_token}`, },
                         data: {
                             'summary': `${array[1]}`,
-                            'end': { 'dateTime': `${end_datetime}`, },
-                            'start': { 'dateTime': `${start_datetime}` }
+                            'end': { 'dateTime': `${end_time}`, },
+                            'start': { 'dateTime': `${start_time}` }
                         }
                     });
 
@@ -151,7 +181,7 @@ export class GCGetter {
                             data: {
                                 'summary': `${array[1]}`,
                                 'end': { 'dateTime': `${end_datetime}`, },
-                                'start': { 'dateTime': `${start_datetime}` }
+                                'start': { 'dateTime': `${start_time}` }
                             }
                         });
                 }
@@ -257,18 +287,46 @@ export class GCGetter {
                 for (let index = 0; index < all_users_id.length; index++) {
                     email_ids[index] = all_users_id[index].emails[0].address;
                 }
-                await modify.getCreator().finish(message);
                 let invite_token = await persistence.get_access_token(context.getSender());
                 const invite_parameters = context.getArguments().join(' ');
                 const invite_array = invite_parameters.split("\"");
                 const invite_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&sendUpdates=all`;
 
-                const invite_datetime = invite_array[3] + 'T' + invite_array[5];
+                const invite_datetime = invite_array[3] + 'T' + invite_array[5] + 'Z';
                 const invite_date = new Date(invite_datetime);
                 const invitestart_datetime = invite_date.toISOString();
-                const invite_e_date = invite_array[3] + 'T' + invite_array[7];
+                const invitestart_ms = invitestart_datetime.split(".");
+                const invite_e_date = invite_array[3] + 'T' + invite_array[7] + 'Z';
                 const inviteend_date = new Date(invite_e_date);
                 const invite_end_datetime = inviteend_date.toISOString();
+                const inviteend_ms = invite_end_datetime.split(".");
+
+                const users_info = await read.getUserReader().getById(users_id);
+
+                let final_start;
+                let final_end;
+                let utcoffset = users_info.utcOffset;
+                let decimal_part = Math.abs(utcoffset - Math.floor(utcoffset));
+                decimal_part = decimal_part * 60;
+                if (utcoffset > 0) {
+                    utcoffset = utcoffset - (decimal_part / 60);
+                }
+                if (utcoffset < 0) {
+                    utcoffset = utcoffset + (decimal_part / 60);
+                }
+
+                if (utcoffset > 0 && utcoffset < 10) {
+                    final_start = invitestart_ms[0] + '+0' + utcoffset + ':' + decimal_part;
+                    final_end = inviteend_ms[0] + '+0' + utcoffset + ':' + decimal_part;
+                } else if (utcoffset >= 10) {
+                    start_time = invitestart_ms[0] + '+' + utcoffset + ':' + decimal_part;
+                    end_time = inviteend_ms[0] + '+' + utcoffset + ':' + decimal_part;
+
+                } else {
+                    final_start = invitestart_ms[0] + utcoffset + ':' + decimal_part;
+                    final_end = inviteend_ms[0] + utcoffset + ':' + decimal_part;
+
+                }
 
                 for (let index = 0; index < email_ids.length; index++) {
                     mapping.push({ email: email_ids[index] });
@@ -278,9 +336,9 @@ export class GCGetter {
                         headers: { Authorization: `Bearer ${invite_token}` },
                         data: {
                             'summary': `${invite_array[1]}`,
-                            'end': { 'dateTime': `${invite_end_datetime}`, },
+                            'end': { 'dateTime': `${final_end}`, },
                             'attendees': mapping,
-                            'start': { 'dateTime': `${invitestart_datetime}` }
+                            'start': { 'dateTime': `${final_start}` }
                         }
                     });
 
@@ -291,9 +349,9 @@ export class GCGetter {
                             headers: { Authorization: `Bearer ${invite_token}`, },
                             data: {
                                 'summary': `${invite_array[1]}`,
-                                'end': { 'dateTime': `${invite_end_datetime}`, },
+                                'end': { 'dateTime': `${final_end}`, },
                                 'attendees': mapping,
-                                'start': { 'dateTime': `${invitestart_datetime}` },
+                                'start': { 'dateTime': `${final_start}` },
                             }
                         });
                 }
