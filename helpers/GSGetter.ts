@@ -150,20 +150,39 @@ export class GCGetter {
                 }
 
                 if (utc > 0 && utc < 10) {
+                    if (decimal == 0) {
+                        start_time = datetime_ms[0] + '+0' + utc + ':' + decimal + '0';
+                        end_time = end_time_ms[0] + '+0' + utc + ':' + decimal + '0';
+                    } else {
                     start_time = datetime_ms[0] + '+0' + utc + ':' + decimal;
                     end_time = end_time_ms[0] + '+0' + utc + ':' + decimal;
+                    }
                 } else if (utc < 0 && utc > -10) {
                     utc = utc * -1;
+                    if (decimal == 0) {
+                        start_time = datetime_ms[0] + '-0' + utc + ':' + decimal + '0';
+                        end_time = end_time_ms[0] + '-0' + utc + ':' + decimal + '0';
+                    } else {
                     start_time = datetime_ms[0] + '-0' + utc + ':' + decimal;
                     end_time = end_time_ms[0] + '-0' + utc + ':' + decimal;
+                    }
                 } else if (utc >= 10) {
+                    if (decimal == 0) {
+                        start_time = datetime_ms[0] + '+' + utc + ':' + decimal + '0';
+                        end_time = end_time_ms[0] + '+' + utc + ':' + decimal + '0';
+                    } else {
                     start_time = datetime_ms[0] + '+' + utc + ':' + decimal;
                     end_time = end_time_ms[0] + '+' + utc + ':' + decimal;
-
+                    }
                 } else {
+
+                    if (decimal == 0) {
+                        start_time = datetime_ms[0]  + utc + ':' + decimal + '0';
+                        end_time = end_time_ms[0]  + utc + ':' + decimal + '0';
+                    } else {
                     start_time = datetime_ms[0] + utc + ':' + decimal;
                     end_time = end_time_ms[0] + utc + ':' + decimal;
-
+                    }
                 }
 
                 let create_api_response = await http.post(create_url,
