@@ -3,7 +3,7 @@ import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCom
 import { MessageActionType } from '@rocket.chat/apps-engine/definition/messages/MessageActionType';
 import { GoogleCalendarApp } from '../GoogleCalendar';
 import { AppPersistence } from '../helpers/persistence';
-import { displayevents, refresh_access_token } from '../helpers/result';
+import { displayevents, refresh_access_token, make_time_string } from '../helpers/result';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 
@@ -126,64 +126,13 @@ export class GCGetter {
                 const array = params.split("\"");
                 const create_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}`;
 
-                const datetime = array[3] + 'T' + array[5] + 'Z';
-                const new_date = new Date(datetime);
-                const start_datetime = new_date.toISOString();
-                const datetime_ms = start_datetime.split(".");
-
-                const e_date = array[3] + 'T' + array[7] + 'Z';
-                const end_date = new Date(e_date);
-                const end_datetime = end_date.toISOString();
-                const end_time_ms = end_datetime.split(".");
                 const user_info = await read.getUserReader().getById(users_id);
 
                 let start_time;
                 let end_time;
                 let utc = user_info.utcOffset;
-                let decimal = Math.abs(utc - Math.floor(utc));
-                decimal = decimal * 60;
-                if (utc > 0) {
-                    utc = utc - (decimal / 60);
-                }
-                if (utc < 0) {
-                    utc = utc + (decimal / 60);
-                }
-
-                if (utc > 0 && utc < 10) {
-                    if (decimal == 0) {
-                        start_time = datetime_ms[0] + '+0' + utc + ':' + decimal + '0';
-                        end_time = end_time_ms[0] + '+0' + utc + ':' + decimal + '0';
-                    } else {
-                    start_time = datetime_ms[0] + '+0' + utc + ':' + decimal;
-                    end_time = end_time_ms[0] + '+0' + utc + ':' + decimal;
-                    }
-                } else if (utc < 0 && utc > -10) {
-                    utc = utc * -1;
-                    if (decimal == 0) {
-                        start_time = datetime_ms[0] + '-0' + utc + ':' + decimal + '0';
-                        end_time = end_time_ms[0] + '-0' + utc + ':' + decimal + '0';
-                    } else {
-                    start_time = datetime_ms[0] + '-0' + utc + ':' + decimal;
-                    end_time = end_time_ms[0] + '-0' + utc + ':' + decimal;
-                    }
-                } else if (utc >= 10) {
-                    if (decimal == 0) {
-                        start_time = datetime_ms[0] + '+' + utc + ':' + decimal + '0';
-                        end_time = end_time_ms[0] + '+' + utc + ':' + decimal + '0';
-                    } else {
-                    start_time = datetime_ms[0] + '+' + utc + ':' + decimal;
-                    end_time = end_time_ms[0] + '+' + utc + ':' + decimal;
-                    }
-                } else {
-
-                    if (decimal == 0) {
-                        start_time = datetime_ms[0]  + utc + ':' + decimal + '0';
-                        end_time = end_time_ms[0]  + utc + ':' + decimal + '0';
-                    } else {
-                    start_time = datetime_ms[0] + utc + ':' + decimal;
-                    end_time = end_time_ms[0] + utc + ':' + decimal;
-                    }
-                }
+                start_time = await make_time_string(array[3], array[5], utc);
+                end_time = await make_time_string(array[3], array[7], utc);
 
                 let create_api_response = await http.post(create_url,
                     {
@@ -203,7 +152,7 @@ export class GCGetter {
                             headers: { 'Authorization': `Bearer ${access_token}`, },
                             data: {
                                 'summary': `${array[1]}`,
-                                'end': { 'dateTime': `${end_datetime}`, },
+                                'end': { 'dateTime': `${end_time}`, },
                                 'start': { 'dateTime': `${start_time}` }
                             }
                         });
@@ -315,41 +264,13 @@ export class GCGetter {
                 const invite_array = invite_parameters.split("\"");
                 const invite_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&sendUpdates=all`;
 
-                const invite_datetime = invite_array[3] + 'T' + invite_array[5] + 'Z';
-                const invite_date = new Date(invite_datetime);
-                const invitestart_datetime = invite_date.toISOString();
-                const invitestart_ms = invitestart_datetime.split(".");
-                const invite_e_date = invite_array[3] + 'T' + invite_array[7] + 'Z';
-                const inviteend_date = new Date(invite_e_date);
-                const invite_end_datetime = inviteend_date.toISOString();
-                const inviteend_ms = invite_end_datetime.split(".");
-
                 const users_info = await read.getUserReader().getById(users_id);
 
                 let final_start;
                 let final_end;
                 let utcoffset = users_info.utcOffset;
-                let decimal_part = Math.abs(utcoffset - Math.floor(utcoffset));
-                decimal_part = decimal_part * 60;
-                if (utcoffset > 0) {
-                    utcoffset = utcoffset - (decimal_part / 60);
-                }
-                if (utcoffset < 0) {
-                    utcoffset = utcoffset + (decimal_part / 60);
-                }
-
-                if (utcoffset > 0 && utcoffset < 10) {
-                    final_start = invitestart_ms[0] + '+0' + utcoffset + ':' + decimal_part;
-                    final_end = inviteend_ms[0] + '+0' + utcoffset + ':' + decimal_part;
-                } else if (utcoffset >= 10) {
-                    start_time = invitestart_ms[0] + '+' + utcoffset + ':' + decimal_part;
-                    end_time = inviteend_ms[0] + '+' + utcoffset + ':' + decimal_part;
-
-                } else {
-                    final_start = invitestart_ms[0] + utcoffset + ':' + decimal_part;
-                    final_end = inviteend_ms[0] + utcoffset + ':' + decimal_part;
-
-                }
+                final_start = await make_time_string(invite_array[3], invite_array[5], utcoffset);
+                final_end = await make_time_string(invite_array[3], invite_array[7], utcoffset);
 
                 for (let index = 0; index < email_ids.length; index++) {
                     mapping.push({ email: email_ids[index] });
