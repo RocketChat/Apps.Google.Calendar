@@ -106,7 +106,6 @@ export class GCGetter {
                 const minimum_date = dat.toISOString();
                 const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&showDeleted=false&timeMin=${minimum_date}`;
                 let api_response = await http.get(url, { headers: { Authorization: `Bearer ${view_token}` } });
-                console.log('This is the view api response:', api_response);
                 if (api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
                     const persistence = new AppPersistence(persis, read.getPersistenceReader());
                     view_token = await refresh_access_token(view_refresh, read, http, modify, context, persis);
@@ -330,3 +329,4 @@ export class GCGetter {
     }
 
 }
+
