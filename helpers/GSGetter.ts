@@ -3,7 +3,7 @@ import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCom
 import { MessageActionType } from '@rocket.chat/apps-engine/definition/messages/MessageActionType';
 import { GoogleCalendarApp } from '../GoogleCalendar';
 import { AppPersistence } from '../helpers/persistence';
-import { displayevents, refresh_access_token, make_time_string } from '../helpers/result';
+import { displayEvents, refresh_access_token, make_time_string } from '../helpers/result';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 
@@ -113,7 +113,7 @@ export class GCGetter {
                 }
                 let timezone = api_response.data.timeZone;
                 for (let i = 0; i < api_response.data.items.length; i++) {
-                    await displayevents(api_response.data.items[i], modify, context, timezone);
+                    await displayEvents(api_response.data.items[i], modify, context, timezone);
                 }
                 break;
 
@@ -170,7 +170,7 @@ export class GCGetter {
                         message.setText('An error occurred when sending the event creation as message :disappointed_relieved:');
                     }
                 } else {
-                    console.log('This is the error message:', create_api_response.data.error.message);
+                    this.app.getLogger().error('This is the error message:', create_api_response.data.error.message);
 
                     try {
                         message.addAttachment({

@@ -1,8 +1,8 @@
-import { IModify, IRead, IHttp, HttpStatusCode, IPersistence } from '@rocket.chat/apps-engine/definition/accessors';
+import { IModify, IRead, IHttp, HttpStatusCode, IPersistence, ILogger } from '@rocket.chat/apps-engine/definition/accessors';
 import { SlashCommandContext, ISlashCommand } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { AppPersistence } from '../helpers/persistence';
 
-export async function displayevents(result: any, modify: IModify, context: SlashCommandContext, time: any): Promise<void> {
+export async function displayEvents(result: any, modify: IModify, context: SlashCommandContext, time: any): Promise<void> {
 
     const summary = result.summary as string;
     const start_time = result.start.dateTime as string;
@@ -61,11 +61,11 @@ export async function refresh_access_token(token: string, read: IRead, http: IHt
 
         return access_token;
     } else {
-        console.log('Encountered error during refreshing access token:', refresh_response.data.error.message);
+        this.app.getlogger().error('Encountered error during refreshing access token:', refresh_response.data.error.message);
     }
 }
 
-export async function make_time_string( date: string, time: string, utc: number) : Promise<string>{
+export function make_time_string(date: string, time: string, utc: number): Promise<string> {
 
     const date_string = date + 'T' + time + 'Z';
     const new_date = new Date(date_string);
@@ -76,38 +76,38 @@ export async function make_time_string( date: string, time: string, utc: number)
     let decimal = Math.abs(utc - Math.floor(utc));
     decimal = decimal * 60;
     if (utc > 0) {
-                    utc = utc - (decimal / 60);
-                }
+        utc = utc - (decimal / 60);
+    }
     if (utc < 0) {
-                    utc = utc + (decimal / 60);
-                }
+        utc = utc + (decimal / 60);
+    }
 
     if (utc > 0 && utc < 10) {
-                    if (decimal == 0) {
-                        final_time = datetime_ms[0] + '+0' + utc + ':' + decimal + '0';
-                    } else {
-                    final_time = datetime_ms[0] + '+0' + utc + ':' + decimal;
-                    }
-                } else if (utc < 0 && utc > -10) {
-                    utc = utc * -1;
-                    if (decimal == 0) {
-                        final_time = datetime_ms[0] + '-0' + utc + ':' + decimal + '0';
-                    } else {
-                    final_time = datetime_ms[0] + '-0' + utc + ':' + decimal;
-                    }
-                } else if (utc >= 10) {
-                    if (decimal == 0) {
-                        final_time = datetime_ms[0] + '+' + utc + ':' + decimal + '0';
-                    } else {
-                    final_time = datetime_ms[0] + '+' + utc + ':' + decimal;
-                    }
-                } else {
+        if (decimal == 0) {
+            final_time = datetime_ms[0] + '+0' + utc + ':' + decimal + '0';
+        } else {
+            final_time = datetime_ms[0] + '+0' + utc + ':' + decimal;
+        }
+    } else if (utc < 0 && utc > -10) {
+        utc = utc * -1;
+        if (decimal == 0) {
+            final_time = datetime_ms[0] + '-0' + utc + ':' + decimal + '0';
+        } else {
+            final_time = datetime_ms[0] + '-0' + utc + ':' + decimal;
+        }
+    } else if (utc >= 10) {
+        if (decimal == 0) {
+            final_time = datetime_ms[0] + '+' + utc + ':' + decimal + '0';
+        } else {
+            final_time = datetime_ms[0] + '+' + utc + ':' + decimal;
+        }
+    } else {
 
-                    if (decimal == 0) {
-                        final_time = datetime_ms[0]  + utc + ':' + decimal + '0';
-                    } else {
-                    final_time = datetime_ms[0] + utc + ':' + decimal;
-                    }
-                }
-                return final_time;
+        if (decimal == 0) {
+            final_time = datetime_ms[0] + utc + ':' + decimal + '0';
+        } else {
+            final_time = datetime_ms[0] + utc + ':' + decimal;
+        }
+    }
+    return final_time;
 }
