@@ -7,17 +7,18 @@ import { get_refresh_token, get_access_token } from '../helpers/result';
 export class WebhookEndpoint extends ApiEndpoint {
     public path = 'webhook';
     public tokenid;
-    private readonly urli = 'http://localhost:3000/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook';
+    private readonly urli = '/api/apps/public/c759c4f1-a3c1-4202-8238-c6868633ed87/webhook';
 
     public async get(request: IApiRequest, endpoint: IApiEndpointInfo, read: IRead, modify: IModify, http: IHttp, persist: IPersistence): Promise<IApiResponse> {
 
         const client_id = await read.getEnvironmentReader().getSettings().getValueById('calendar_clientid');
         const secret = await read.getEnvironmentReader().getSettings().getValueById('calendar_secret_key');
         const api_key = await read.getEnvironmentReader().getSettings().getValueById('calendar_apikey');
-
+        const redirect = await read.getEnvironmentReader().getSettings().getValueById('redirect_uri');
+        const final_url = redirect + this.urli;
         const auth_code = request.query.code;
         const url = 'https://www.googleapis.com/oauth2/v4/token';
-        const new_response = await http.post(url, { data: { 'code': `${auth_code}`, 'client_id': `${client_id}`, 'client_secret': `${secret}`, 'redirect_uri': `${this.urli}`, 'grant_type': 'authorization_code', } });
+        const new_response = await http.post(url, { data: { 'code': `${auth_code}`, 'client_id': `${client_id}`, 'client_secret': `${secret}`, 'redirect_uri': `${final_url}`, 'grant_type': 'authorization_code', } });
 
         if (new_response.statusCode !== HttpStatusCode.OK || !new_response.data) {
             console.log('Did not get a valid response', new_response);

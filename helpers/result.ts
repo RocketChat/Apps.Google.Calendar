@@ -1,41 +1,30 @@
-import { IModify, IRead, IHttp, HttpStatusCode, IPersistence } from '@rocket.chat/apps-engine/definition/accessors';
+import { IModify, IRead, IHttp, HttpStatusCode, IPersistence, ILogger } from '@rocket.chat/apps-engine/definition/accessors';
 import { SlashCommandContext, ISlashCommand } from '@rocket.chat/apps-engine/definition/slashcommands';
 import { AppPersistence } from '../helpers/persistence';
 
-export async function displayevents(result: any, modify: IModify, context: SlashCommandContext): Promise<void> {
+export async function displayEvents(result: any, modify: IModify, context: SlashCommandContext, time: any): Promise<void> {
 
     const summary = result.summary as string;
     const start_time = result.start.dateTime as string;
     let end_time = result.end.dateTime as string;
 
-    const start_date = new Date(start_time);
-    const start_year = start_date.getFullYear();
-    const start_month = (start_date.getMonth() + 1);
-    const date_start = start_date.getDate();
-    const start_hours = start_date.getHours();
-    const start_minutes = start_date.getMinutes();
+    const array1 = start_time.split('T');
+    const array2 = end_time.split('T');
 
-    const short_cut_date = new Date(end_time);
-    const year_new = short_cut_date.getFullYear();
-    const month_new = (short_cut_date.getMonth() + 1);
-    const date_new = short_cut_date.getDate();
-    const hours_end = short_cut_date.getHours();
-    const minutes_end = short_cut_date.getMinutes();
-    let timezone = start_time.split('+', 2);
-    let sign;
-    if (timezone) {
-        sign = '+';
-    } else {
-        timezone = start_time.split('-', 2);
-        sign = '-';
-    }
+    const start_date = array1[0].split('-');
+    const start_final = array1[1].split(':');
+
+    const end_date = array2[0].split('-');
+    const end_final = array2[1].split(':');
+    let timezone = time;
+
     const builder = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
     try {
         builder.addAttachment({
             title: {
                 value: summary,
             },
-            text: `is a due event on your calendar starting from date ${date_start}/${start_month}/${start_year} at ${start_hours}:${start_minutes}(UTC ${sign}${timezone[1]}) to ${date_new}/${month_new}/${[year_new]} at ${hours_end}:${minutes_end} (UTC ${sign}${timezone[1]}). [Find and manage the event here](${result.htmlLink}) `,
+            text: `is a due event on your calendar starting from date ${start_date[2]}/${start_date[1]}/${start_date[0]} at ${start_final[0]}:${start_final[1]}(${timezone}) to ${end_date[2]}/${end_date[1]}/${end_date[0]} at ${end_final[0]}:${end_final[1]} (${timezone}). [Find and manage the event here](${result.htmlLink}) `,
         });
         await modify.getCreator().finish(builder);
     } catch (e) {
@@ -64,7 +53,6 @@ export async function refresh_access_token(token: string, read: IRead, http: IHt
     const message = modify.getCreator().startMessage().setSender(context.getSender()).setRoom(context.getRoom());
 
     const refresh_response = await http.post(url);
-    console.log('This is respones from new ref token inside refresh acc-token function:', refresh_response);
     if (refresh_response.statusCode == HttpStatusCode.OK) {
         const access_token = refresh_response.data.access_token;
         const persistence = new AppPersistence(persis, read.getPersistenceReader());
@@ -73,6 +61,53 @@ export async function refresh_access_token(token: string, read: IRead, http: IHt
 
         return access_token;
     } else {
-        console.log('Encountered error during refreshing access token:', refresh_response.data.error.message);
+        this.app.getlogger().error('Encountered error during refreshing access token:', refresh_response.data.error.message);
     }
+}
+
+export function make_time_string(date: string, time: string, utc: number): Promise<string> {
+
+    const date_string = date + 'T' + time + 'Z';
+    const new_date = new Date(date_string);
+    const datetime = new_date.toISOString();
+    const datetime_ms = datetime.split(".");
+
+    let final_time;
+    let decimal = Math.abs(utc - Math.floor(utc));
+    decimal = decimal * 60;
+    if (utc > 0) {
+        utc = utc - (decimal / 60);
+    }
+    if (utc < 0) {
+        utc = utc + (decimal / 60);
+    }
+
+    if (utc > 0 && utc < 10) {
+        if (decimal == 0) {
+            final_time = datetime_ms[0] + '+0' + utc + ':' + decimal + '0';
+        } else {
+            final_time = datetime_ms[0] + '+0' + utc + ':' + decimal;
+        }
+    } else if (utc < 0 && utc > -10) {
+        utc = utc * -1;
+        if (decimal == 0) {
+            final_time = datetime_ms[0] + '-0' + utc + ':' + decimal + '0';
+        } else {
+            final_time = datetime_ms[0] + '-0' + utc + ':' + decimal;
+        }
+    } else if (utc >= 10) {
+        if (decimal == 0) {
+            final_time = datetime_ms[0] + '+' + utc + ':' + decimal + '0';
+        } else {
+            final_time = datetime_ms[0] + '+' + utc + ':' + decimal;
+        }
+    } else {
+
+        if (decimal == 0) {
+            final_time = datetime_ms[0] + utc + ':' + decimal + '0';
+        } else {
+            final_time = datetime_ms[0] + utc + ':' + decimal;
+        }
+    }
+    return final_time;
 }

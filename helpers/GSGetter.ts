@@ -3,7 +3,7 @@ import { ISlashCommand, ISlashCommandPreview, ISlashCommandPreviewItem, SlashCom
 import { MessageActionType } from '@rocket.chat/apps-engine/definition/messages/MessageActionType';
 import { GoogleCalendarApp } from '../GoogleCalendar';
 import { AppPersistence } from '../helpers/persistence';
-import { displayevents, refresh_access_token } from '../helpers/result';
+import { displayEvents, refresh_access_token, make_time_string } from '../helpers/result';
 import { IUser } from '@rocket.chat/apps-engine/definition/users';
 import { RocketChatAssociationModel, RocketChatAssociationRecord } from '@rocket.chat/apps-engine/definition/metadata';
 
@@ -106,15 +106,14 @@ export class GCGetter {
                 const minimum_date = dat.toISOString();
                 const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&showDeleted=false&timeMin=${minimum_date}`;
                 let api_response = await http.get(url, { headers: { Authorization: `Bearer ${view_token}` } });
-
                 if (api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
                     const persistence = new AppPersistence(persis, read.getPersistenceReader());
                     view_token = await refresh_access_token(view_refresh, read, http, modify, context, persis);
                     api_response = await http.get(url, { headers: { Authorization: `Bearer ${view_token}` } });
                 }
-
+                let timezone = api_response.data.timeZone;
                 for (let i = 0; i < api_response.data.items.length; i++) {
-                    await displayevents(api_response.data.items[i], modify, context);
+                    await displayEvents(api_response.data.items[i], modify, context, timezone);
                 }
                 break;
 
@@ -126,19 +125,21 @@ export class GCGetter {
                 const array = params.split("\"");
                 const create_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}`;
 
-                const datetime = array[3] + 'T' + array[5];
-                const date = new Date(datetime);
-                const start_datetime = date.toISOString();
-                const e_date = array[3] + 'T' + array[7];
-                const end_date = new Date(e_date);
-                const end_datetime = end_date.toISOString();
+                const user_info = await read.getUserReader().getById(users_id);
+
+                let start_time;
+                let end_time;
+                let utc = user_info.utcOffset;
+                start_time = await make_time_string(array[3], array[5], utc);
+                end_time = await make_time_string(array[3], array[7], utc);
+
                 let create_api_response = await http.post(create_url,
                     {
                         headers: { 'Authorization': `Bearer ${access_token}`, },
                         data: {
                             'summary': `${array[1]}`,
-                            'end': { 'dateTime': `${end_datetime}`, },
-                            'start': { 'dateTime': `${start_datetime}` }
+                            'end': { 'dateTime': `${end_time}`, },
+                            'start': { 'dateTime': `${start_time}` }
                         }
                     });
 
@@ -150,8 +151,8 @@ export class GCGetter {
                             headers: { 'Authorization': `Bearer ${access_token}`, },
                             data: {
                                 'summary': `${array[1]}`,
-                                'end': { 'dateTime': `${end_datetime}`, },
-                                'start': { 'dateTime': `${start_datetime}` }
+                                'end': { 'dateTime': `${end_time}`, },
+                                'start': { 'dateTime': `${start_time}` }
                             }
                         });
                 }
@@ -169,7 +170,7 @@ export class GCGetter {
                         message.setText('An error occurred when sending the event creation as message :disappointed_relieved:');
                     }
                 } else {
-                    console.log('This is the error message:', create_api_response.data.error.message);
+                    this.app.getLogger().error('This is the error message:', create_api_response.data.error.message);
 
                     try {
                         message.addAttachment({
@@ -257,18 +258,18 @@ export class GCGetter {
                 for (let index = 0; index < all_users_id.length; index++) {
                     email_ids[index] = all_users_id[index].emails[0].address;
                 }
-                await modify.getCreator().finish(message);
                 let invite_token = await persistence.get_access_token(context.getSender());
                 const invite_parameters = context.getArguments().join(' ');
                 const invite_array = invite_parameters.split("\"");
                 const invite_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&sendUpdates=all`;
 
-                const invite_datetime = invite_array[3] + 'T' + invite_array[5];
-                const invite_date = new Date(invite_datetime);
-                const invitestart_datetime = invite_date.toISOString();
-                const invite_e_date = invite_array[3] + 'T' + invite_array[7];
-                const inviteend_date = new Date(invite_e_date);
-                const invite_end_datetime = inviteend_date.toISOString();
+                const users_info = await read.getUserReader().getById(users_id);
+
+                let final_start;
+                let final_end;
+                let utcoffset = users_info.utcOffset;
+                final_start = await make_time_string(invite_array[3], invite_array[5], utcoffset);
+                final_end = await make_time_string(invite_array[3], invite_array[7], utcoffset);
 
                 for (let index = 0; index < email_ids.length; index++) {
                     mapping.push({ email: email_ids[index] });
@@ -278,9 +279,9 @@ export class GCGetter {
                         headers: { Authorization: `Bearer ${invite_token}` },
                         data: {
                             'summary': `${invite_array[1]}`,
-                            'end': { 'dateTime': `${invite_end_datetime}`, },
+                            'end': { 'dateTime': `${final_end}`, },
                             'attendees': mapping,
-                            'start': { 'dateTime': `${invitestart_datetime}` }
+                            'start': { 'dateTime': `${final_start}` }
                         }
                     });
 
@@ -291,9 +292,9 @@ export class GCGetter {
                             headers: { Authorization: `Bearer ${invite_token}`, },
                             data: {
                                 'summary': `${invite_array[1]}`,
-                                'end': { 'dateTime': `${invite_end_datetime}`, },
+                                'end': { 'dateTime': `${final_end}`, },
                                 'attendees': mapping,
-                                'start': { 'dateTime': `${invitestart_datetime}` },
+                                'start': { 'dateTime': `${final_start}` },
                             }
                         });
                 }
@@ -328,3 +329,4 @@ export class GCGetter {
     }
 
 }
+
