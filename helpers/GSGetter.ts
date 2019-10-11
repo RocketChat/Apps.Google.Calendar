@@ -101,10 +101,10 @@ export class GCGetter {
             case (Command.show):
                 let view_token = await persistence.get_access_token(context.getSender());
                 const view_refresh = await persistence.get_refresh_token_user(context.getSender());
-
                 const dat = new Date();
                 const minimum_date = dat.toISOString();
-                const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&showDeleted=false&timeMin=${minimum_date}`;
+                const show_calendar = await persistence.get_preferred_calendar_id(context.getSender());
+                const url = `https://www.googleapis.com/calendar/v3/calendars/${show_calendar}/events?key=${api_key}&showDeleted=false&timeMin=${minimum_date}`;
                 let api_response = await http.get(url, { headers: { Authorization: `Bearer ${view_token}` } });
                 if (api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
                     const persistence = new AppPersistence(persis, read.getPersistenceReader());
@@ -123,7 +123,8 @@ export class GCGetter {
                 const create_refresh = await persistence.get_refresh_token_user(context.getSender());
                 const params = context.getArguments().join(' ');
                 const array = params.split("\"");
-                const create_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}`;
+                const make_calendar = await persistence.get_preferred_calendar_id(context.getSender());
+                const create_url = `https://www.googleapis.com/calendar/v3/calendars/${make_calendar}/events?key=${api_key}`;
 
                 const user_info = await read.getUserReader().getById(users_id);
 
@@ -193,7 +194,8 @@ export class GCGetter {
                 const title_new = title.split('\"');
                 let token = await persistence.get_access_token(context.getSender());
                 const quick_refresh = await persistence.get_refresh_token_user(context.getSender());
-                const quick_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events/quickAdd?key=${api_key}&text=${title_new[1]}`;
+                const quick_calendar = await persistence.get_preferred_calendar_id(context.getSender());
+                const quick_url = `https://www.googleapis.com/calendar/v3/calendars/${quick_calendar}/events/quickAdd?key=${api_key}&text=${title_new[1]}`;
                 let quick_api_response = await http.post(quick_url, { headers: { Authorization: `Bearer ${token}` } });
                 if (quick_api_response.statusCode == HttpStatusCode.UNAUTHORIZED) {
                     token = await refresh_access_token(quick_refresh, read, http, modify, context, persis);
@@ -247,6 +249,8 @@ export class GCGetter {
                 const calendar = context.getArguments();
                 const id = await persistence.connect_user_to_calendar_id(calendar[1], context.getSender());
                 const final_calendar_id = await persistence.get_preferred_calendar_id(context.getSender());
+                message.setText('Preferred calendar updated!');
+                await modify.getCreator().finish(message);
                 break;
 
             case (Command.public):
@@ -261,7 +265,8 @@ export class GCGetter {
                 let invite_token = await persistence.get_access_token(context.getSender());
                 const invite_parameters = context.getArguments().join(' ');
                 const invite_array = invite_parameters.split("\"");
-                const invite_url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?key=${api_key}&sendUpdates=all`;
+                const public_calendar = await persistence.get_preferred_calendar_id(context.getSender());
+                const invite_url = `https://www.googleapis.com/calendar/v3/calendars/${public_calendar}/events?key=${api_key}&sendUpdates=all`;
 
                 const users_info = await read.getUserReader().getById(users_id);
 
